@@ -1,6 +1,7 @@
 import { DrizzleQueryError, eq } from "drizzle-orm";
 import { db } from "../db/drizzle";
 import { users } from "../db/schema";
+import { generateJWTToken } from "../util/jwt";
 import type { VTSignInSchema, VTSignUpSchema } from "../validators/sso";
 
 export const registerUser = async (payload: VTSignUpSchema) => {
@@ -15,9 +16,13 @@ export const registerUser = async (payload: VTSignUpSchema) => {
 			email: payload.email,
 			age: payload.age,
 		});
+
+		const jwt = await generateJWTToken({ email: payload.email });
+
 		return {
 			success: true,
 			message: null,
+			token: jwt,
 		};
 	} catch (error) {
 		if (error instanceof DrizzleQueryError) {
@@ -65,9 +70,12 @@ export const verifyUser = async (payload: VTSignInSchema) => {
 			};
 		}
 
+		const jwt = await generateJWTToken({ email: payload.email });
+
 		return {
 			success: true,
 			message: "Login successfully",
+			token: jwt,
 		};
 	} catch (error) {
 		if (error instanceof DrizzleQueryError) {
@@ -83,6 +91,7 @@ export const verifyUser = async (payload: VTSignInSchema) => {
 				message: error.cause?.message,
 			};
 		}
+		console.log(error);
 		return {
 			success: true,
 			message: "Internal Server Error",
