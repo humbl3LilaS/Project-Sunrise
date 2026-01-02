@@ -1,11 +1,22 @@
 import { Hono } from "hono";
 import { sso } from "./routes/sso";
+import { cors } from "hono/cors";
 
 const app = new Hono();
 
 app.get("/", (c) => {
 	return c.text("Hello Hono!");
 });
+
+app.use(
+	"/api/v0/*",
+	cors({
+		origin: "http://localhost:3001",
+		allowMethods: ["POST", "PUT", "GET"],
+		maxAge: 86400,
+		credentials: true,
+	}),
+);
 
 app.route("/api/v0/sso", sso);
 
