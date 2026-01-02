@@ -1,0 +1,28 @@
+{
+	"name": "communit-learning-api",
+	"scripts": {
+		"dev": "bun run --watch src/index.ts",
+		"build": "bun build src/index.ts --outdir ./dist --target bun --minify",
+		"build:prod": "bun build src/index.ts  --compile --outfile  ./exe/server",
+		"lint": "bunx biome check --write",
+		"db:generate": "bunx drizzle-kit generate",
+		"db:migrate": "bunx drizzle-kit migrate",
+		"db:studio": "bunx drizzle-kit studio"
+	},
+	"dependencies": {
+		"@hono/zod-validator": "^0.7.6",
+		"dotenv": "^17.2.3",
+		"drizzle-orm": "^0.45.1",
+		"drizzle-zod": "^0.8.3",
+		"hono": "^4.11.3",
+		"pg": "^8.16.3",
+		"zod": "^4.3.4"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.3.10",
+		"@types/bun": "latest",
+		"@types/pg": "^8.16.0",
+		"drizzle-kit": "^0.31.8",
+		"tsx": "^4.21.0"
+	}
+}
