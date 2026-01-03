@@ -1,6 +1,6 @@
 import { Hono } from "hono";
-import { sso } from "./routes/sso";
 import { cors } from "hono/cors";
+import { sso } from "./routes/sso";
 
 const app = new Hono();
 

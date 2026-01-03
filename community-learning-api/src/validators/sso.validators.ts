@@ -37,3 +37,33 @@ export const signInSchema = z.object({
 });
 
 export type VTSignInSchema = z.infer<typeof signInSchema>;
+
+export const userInfoUpdateSchema = z
+	.object({
+		email: z.email({ message: "Email is require" }).optional(),
+		username: z
+			.string()
+			.min(5, { message: "Username must be al least 5 characters long" })
+			.optional(),
+		password: password.optional(),
+	})
+	.superRefine((arg, ctx) => {
+		if (!arg.email && !arg.username && !arg.password) {
+			ctx.addIssue({
+				code: "custom",
+				message: "At least one payload must be present",
+				input: arg.email,
+			});
+		}
+	});
+
+export type VTUserInfoUpdate = z.infer<typeof userInfoUpdateSchema>;
+
+export const jwtPayload = z.object({
+	email: z.email({ message: "Email is required" }),
+	userid: z.string().min(1, { message: "Userid is requried" }),
+	iat: z.number().positive(),
+	exp: z.number().positive(),
+});
+
+export type VTJwtPayload = z.infer<typeof jwtPayload>;

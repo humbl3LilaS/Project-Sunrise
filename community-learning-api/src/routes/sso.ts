@@ -1,7 +1,17 @@
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
-import { registerUser, verifyUser } from "../actions/sso.actions";
-import { signInSchema, signUpSchema } from "../validators/sso";
+import {
+	getUserData,
+	registerUser,
+	updateUserData,
+	verifyUser,
+} from "../actions/sso.actions";
+import { validateJWT } from "../middleware";
+import {
+	signInSchema,
+	signUpSchema,
+	userInfoUpdateSchema,
+} from "../validators/sso.validators";
 
 export const sso = new Hono();
 
@@ -25,3 +35,47 @@ sso.post("/sign-in", zValidator("json", signInSchema), async (ctx) => {
 	}
 	return ctx.json({ success: true, token, message }, 200);
 });
+
+sso.get("/me", validateJWT, async (ctx) => {
+	const { userid } = ctx.var.jwtToken;
+	const res = await getUserData(userid);
+	if (res.status !== 200) {
+		return ctx.json({ sucess: false, message: res.message }, res.status);
+	}
+	return ctx.json(
+		{
+			sucess: true,
+			data: {
+				userid: res.data.id,
+				email: res.data.email,
+				name: res.data.name,
+			},
+		},
+		200,
+	);
+});
+
+sso.post(
+	"/me",
+	validateJWT,
+	zValidator("json", userInfoUpdateSchema),
+	async (ctx) => {
+		const { userid } = ctx.var.jwtToken;
+		const payload = ctx.req.valid("json");
+		const res = await updateUserData(userid, payload);
+		if (res.status !== 200) {
+			return ctx.json({ sucess: false }, res.status);
+		}
+		return ctx.json(
+			{
+				sucess: true,
+				data: {
+					userid: res.data.id,
+					email: res.data.email,
+					name: res.data.name,
+				},
+			},
+			200,
+		);
+	},
+);

@@ -1,23 +1,42 @@
 import { createMiddleware } from "hono/factory";
 import { decryptJWTToken } from "../util/jwt";
-export const validateJWT = createMiddleware(async (ctx, next) => {
-	const bearerToken = ctx.req.header("Authorization");
-	console.log(bearerToken);
-	if (!bearerToken) {
+import type { VTJwtPayload } from "../validators/sso.validators";
+
+export const validateJWT = createMiddleware<{
+	Variables: {
+		jwtToken: VTJwtPayload;
+	};
+}>(async (ctx, next) => {
+	const authorizationHeader = ctx.req.header("Authorization");
+	if (!authorizationHeader) {
 		return ctx.json(
 			{
 				success: false,
-				message: "Unauthorized User",
+				message: "Unauthorized Request",
 			},
 			401,
 		);
 	}
-	const { success, payload } = await decryptJWTToken(bearerToken);
-	if (!success) {
+
+	const [_, bearerToken] = authorizationHeader.split(" ");
+
+	if (!bearerToken) {
 		return ctx.json(
 			{
 				success: false,
-				message: "Unauthorized User",
+				message: "Unauthorized Request",
+			},
+			401,
+		);
+	}
+
+	const { success, payload } = await decryptJWTToken(bearerToken);
+
+	if (!success || !payload) {
+		return ctx.json(
+			{
+				success: false,
+				message: "Unauthorized Request",
 			},
 			401,
 		);
