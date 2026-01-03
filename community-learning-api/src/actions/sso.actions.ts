@@ -81,7 +81,7 @@ export const verifyUser = async (payload: VTSignInSchema) => {
 			};
 		}
 
-		const jwt = await generateJWTToken({ email: payload.email });
+		const jwt = await generateJWTToken({ email: payload.email, userid: user.id });
 
 		return {
 			success: true,

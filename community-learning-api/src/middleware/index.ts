@@ -30,17 +30,17 @@ export const validateJWT = createMiddleware<{
 		);
 	}
 
-	const { success, payload } = await decryptJWTToken(bearerToken);
+	const decryptedToken = await decryptJWTToken(bearerToken);
 
-	if (!success || !payload) {
+	if (!decryptedToken.success) {
 		return ctx.json(
 			{
 				success: false,
-				message: "Unauthorized Request",
+				message: `${decryptedToken.message}`,
 			},
 			401,
 		);
 	}
-	ctx.set("jwtToken", payload);
+	ctx.set("jwtToken", decryptedToken.payload);
 	await next();
 });

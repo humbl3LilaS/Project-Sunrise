@@ -18,29 +18,44 @@ export const generateJWTToken = async (
 
 export const decryptJWTToken = async (
 	token: string,
-): Promise<{ success: boolean; payload: VTJwtPayload | null }> => {
+): Promise<
+	{ success: true; payload: VTJwtPayload } | { success: false; message: string }
+> => {
 	const secret = Buffer.from(process.env.JWT_SECRET!, "base64");
 
-	const { payload } = await jose.jwtDecrypt(token, secret);
+	try {
+		const { payload } = await jose.jwtDecrypt(token, secret);
 
-	if (!payload) {
+		if (!payload) {
+			return {
+				success: false,
+				message: "Invalid Token",
+			};
+		}
+
+		const { data, success } = jwtPayload.safeParse(payload);
+
+		if (!success) {
+			return {
+				success: false,
+				message: "Invalid Token Payload",
+			};
+		}
+
+		return {
+			success: true,
+			payload: data,
+		};
+	} catch (error) {
+		if (error instanceof Error) {
+			return {
+				success: false,
+				message: `${error.name}: ${error.message}`,
+			};
+		}
 		return {
 			success: false,
-			payload: null,
+			message: "Invalid Token",
 		};
 	}
-
-	const { data, success } = jwtPayload.safeParse(payload);
-
-	if (!success) {
-		return {
-			success: false,
-			payload: null,
-		};
-	}
-
-	return {
-		success: true,
-		payload: data,
-	};
 };

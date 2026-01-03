@@ -1,4 +1,3 @@
-import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import {
 	getUserData,
@@ -7,6 +6,7 @@ import {
 	verifyUser,
 } from "../actions/sso.actions";
 import { validateJWT } from "../middleware";
+import { czValidator } from "../util/zod-validator";
 import {
 	signInSchema,
 	signUpSchema,
@@ -15,7 +15,7 @@ import {
 
 export const sso = new Hono();
 
-sso.post("/sign-up", zValidator("json", signUpSchema), async (ctx) => {
+sso.post("/sign-up", czValidator("json", signUpSchema), async (ctx) => {
 	const data = ctx.req.valid("json");
 	const { success, message, token } = await registerUser(data);
 	if (!success) {
@@ -27,7 +27,7 @@ sso.post("/sign-up", zValidator("json", signUpSchema), async (ctx) => {
 	);
 });
 
-sso.post("/sign-in", zValidator("json", signInSchema), async (ctx) => {
+sso.post("/sign-in", czValidator("json", signInSchema), async (ctx) => {
 	const payload = ctx.req.valid("json");
 	const { success, message, token } = await verifyUser(payload);
 	if (!success) {
@@ -58,7 +58,7 @@ sso.get("/me", validateJWT, async (ctx) => {
 sso.post(
 	"/me",
 	validateJWT,
-	zValidator("json", userInfoUpdateSchema),
+	czValidator("json", userInfoUpdateSchema),
 	async (ctx) => {
 		const { userid } = ctx.var.jwtToken;
 		const payload = ctx.req.valid("json");
