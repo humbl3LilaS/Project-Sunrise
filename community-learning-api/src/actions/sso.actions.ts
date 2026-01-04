@@ -18,16 +18,15 @@ export const registerUser = async (payload: VTSignUpSchema) => {
 		const [data] = await db
 			.insert(users)
 			.values({
-				name: payload.username,
+				...payload,
 				password: encryptedPassword,
-				email: payload.email,
-				age: payload.age,
 			})
-			.returning({ userId: users.id });
+			.returning({ userId: users.id, role: users.role });
 
 		const jwt = await generateJWTToken({
 			email: payload.email,
 			userid: data.userId,
+			role: data.role,
 		});
 
 		return {
@@ -81,7 +80,11 @@ export const verifyUser = async (payload: VTSignInSchema) => {
 			};
 		}
 
-		const jwt = await generateJWTToken({ email: payload.email, userid: user.id });
+		const jwt = await generateJWTToken({
+			email: payload.email,
+			userid: user.id,
+			role: user.role,
+		});
 
 		return {
 			success: true,
@@ -113,9 +116,9 @@ export const getUserData = async (
 	userid: string,
 ): Promise<
 	| {
-		status: 200;
-		data: TUsers;
-	}
+			status: 200;
+			data: TUsers;
+	  }
 	| { status: 404 | 500; message: string }
 > => {
 	try {
@@ -149,9 +152,9 @@ export const updateUserData = async (
 	payload: VTUserInfoUpdate,
 ): Promise<
 	| {
-		status: 200;
-		data: TUsers;
-	}
+			status: 200;
+			data: TUsers;
+	  }
 	| { status: 404 | 500; message: string }
 > => {
 	try {

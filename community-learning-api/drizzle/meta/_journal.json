@@ -8,6 +8,20 @@
 			"when": 1767286384215,
 			"tag": "0000_small_vindicator",
 			"breakpoints": true
+		},
+		{
+			"idx": 1,
+			"version": "7",
+			"when": 1767494564509,
+			"tag": "0001_high_justice",
+			"breakpoints": true
+		},
+		{
+			"idx": 2,
+			"version": "7",
+			"when": 1767494613246,
+			"tag": "0002_cool_midnight",
+			"breakpoints": true
 		}
 	]
 }
