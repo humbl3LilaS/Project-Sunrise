@@ -33,8 +33,6 @@ export const decryptJWTToken = async (
 			};
 		}
 
-		console.log(payload);
-
 		const { data, success } = jwtPayload.safeParse(payload);
 
 		if (!success) {

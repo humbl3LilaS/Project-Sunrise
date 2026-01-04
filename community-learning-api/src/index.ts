@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { sso } from "./routes/sso";
+import { sso } from "./routes/sso.route";
+import { community } from "./routes/community.route";
 
 const app = new Hono();
 
@@ -19,5 +20,6 @@ app.use(
 );
 
 app.route("/api/v0/sso", sso);
+app.route("/api/v0/community", community);
 
 export default app;
