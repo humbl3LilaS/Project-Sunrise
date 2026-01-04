@@ -6,6 +6,7 @@ import {
 	text,
 	primaryKey,
 	boolean,
+	PgTable,
 } from "drizzle-orm/pg-core";
 import { CommunityType, CommunityUserRole, UserRole } from "./enum";
 
@@ -20,9 +21,10 @@ export const users = pgTable("users", {
 
 export type TUsers = typeof users.$inferSelect;
 
+// TODO: Update the communityDetail schema to include createdAt timestmap and updatedAt timestamp.
 export const communityDetail = pgTable("community_detail", {
 	id: uuid().defaultRandom().primaryKey(),
-	name: varchar({ length: 255 }).notNull(),
+	name: varchar({ length: 255 }).notNull().unique(),
 	description: text().notNull(),
 	type: CommunityType("type").default("PUBLIC"),
 	bgUrl: text(),
@@ -33,12 +35,27 @@ export type TCommnityDetail = typeof communityDetail.$inferSelect;
 export const communityUsers = pgTable(
 	"community_users",
 	{
-		userId: uuid("user_id").references(() => users.id),
-		communityId: uuid("community_id").references(() => communityDetail.id),
-		userRole: CommunityUserRole("user_role").default("USER"),
-		isBanned: boolean("is_banned").default(false),
+		userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
+		communityId: uuid("community_id").references(() => communityDetail.id, {
+			onDelete: "cascade",
+		}),
+		userRole: CommunityUserRole("user_role").default("MEMBER"),
 	},
 	(table) => [primaryKey({ columns: [table.userId, table.communityId] })],
 );
 
 export type TCommunityUsers = typeof communityUsers.$inferSelect;
+
+/**
+ * This table store the user who are banned from certain community.
+ */
+export const communityBanList = pgTable(
+	"community_banlist",
+	{
+		userId: uuid("user_id").references(() => users.id, { onDelete: "cascade" }),
+		communityId: uuid("community_id").references(() => communityDetail.id, {
+			onDelete: "cascade",
+		}),
+	},
+	(table) => [primaryKey({ columns: [table.userId, table.communityId] })],
+);

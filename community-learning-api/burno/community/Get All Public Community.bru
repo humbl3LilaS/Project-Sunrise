@@ -1,0 +1,20 @@
+meta {
+  name: Get All Public Community
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:3000/api/v0/community
+  body: none
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..iInAQW0yNQchr1420znctQ.Su6srCP7VAw9ktnFGhvJq9IMOYRooyLC4KIjW_wuNK6jnds9K218vJWBBbz6o57CDYG4aIrSJ15bzXFp4JLByubeYCKPh5AuQ0HG4aCTSDXlf3KKrnYuRQGr5bkRqJdaujz_pkEjkv0DkK4jhbqH1zy57adwVNKbjCouhBtrmQHvyOR5KKmr5tQIUBgm272K.wz47cf6EsX8fRt7rvJYUdQ
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

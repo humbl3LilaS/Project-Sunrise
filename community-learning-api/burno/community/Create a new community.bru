@@ -1,0 +1,27 @@
+meta {
+  name: Create a new community
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:3000/api/v0/community/create
+  body: json
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..tBmD6goXyNfobUYyTj1nlA.vl0v-aCIcsVfyCsBAqiLUcqNuMilcCHzNk4TyVSVBOIfzqAhhtq6TyHpahYYgYyKhwgqQKH9VFxcGsMVktm_DO-7Pw96b8RXxvZRTGIv8GrUJlaiCyk70Tj_qYUG1wqn8Rbs7evFwSs9cDAcnktELfvEG6ywAUuoT7HmnZ6y9fQygUaRCRs02Z2K7-I4G3Wp.yTm4afUgUdUC3aUFYifkdw
+}
+
+body:json {
+  {
+      "name": "Public1 Community",
+      "description": "This is the super duper description"
+    }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

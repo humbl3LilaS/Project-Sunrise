@@ -13,7 +13,8 @@ export const CommunityType = pgEnum("community_type", [
 export type TCommunityType = (typeof CommunityType.enumValues)[number];
 
 export const CommunityUserRole = pgEnum("community_user_role", [
+	"OWNER",
 	"ADMIN",
 	"MODERATOR",
-	"USER",
+	"MEMBER",
 ]);
