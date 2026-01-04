@@ -1,13 +1,17 @@
 import { and, DrizzleQueryError, eq, isNull, ne, or } from "drizzle-orm";
 import { union } from "drizzle-orm/pg-core";
 import { db } from "../db/drizzle";
+import type { TCommnityDetail, TCommunityBanList } from "../db/schema";
 import {
 	communityBanList,
 	communityDetail,
 	communityUsers,
 } from "../db/schema";
-import type { TCommnityDetail } from "../db/schema";
-import type { VTCommunityDetail } from "../validators/community.validators";
+import type {
+	VTBanUserPayload,
+	VTCommunityDetail,
+} from "../validators/community.validators";
+import { communityUserRoleWeight as authority } from "./constants";
 
 export const getAllPublicCommunity = async (
 	userid: string,
@@ -41,7 +45,7 @@ export const getAllPublicCommunity = async (
 			);
 
 		/*
-		 * This query select every community in which use is apart of.
+		 * This query select every community in which user is apart of.
 		 * */
 		const userRelatedCommunities = db
 			.select({
@@ -59,7 +63,6 @@ export const getAllPublicCommunity = async (
 		 * Union the result set of publicCommunites and userRelatedCummunities to eliminate duplicated values.
 		 * */
 		const result = await union(publicCommunities, userRelatedCommunities);
-		console.log("combination result", result);
 
 		return {
 			status: 200,
@@ -135,6 +138,101 @@ export const createNewCommunity = async (
 				message: error.cause?.message ?? "Internal Server Error",
 			};
 		}
+		if (error instanceof Error) {
+			return {
+				status: 400,
+				message: error.message,
+			};
+		}
+		return {
+			status: 500,
+			message: "Internal Server Error",
+		};
+	}
+};
+
+export const addUserToBanList = async (
+	userid: string,
+	payload: VTBanUserPayload,
+): Promise<
+	| { status: 201; data: TCommunityBanList }
+	| { status: 401 | 400 | 500; message: string }
+> => {
+	try {
+		const { data, message } = await db.transaction(async (tx) => {
+			const [performer] = await tx
+				.select()
+				.from(communityUsers)
+				.where(
+					and(
+						eq(communityUsers.userId, userid),
+						eq(communityUsers.communityId, payload.communityId),
+					),
+				);
+
+			if (!performer || !performer.userRole) {
+				return {
+					data: null,
+					message: "User Don't Have Authority to perform such action.",
+				};
+			}
+
+			const [target] = await tx
+				.select()
+				.from(communityUsers)
+				.where(
+					and(
+						eq(communityUsers.userId, userid),
+						eq(communityUsers.communityId, payload.communityId),
+					),
+				);
+
+			const performerAuthority = authority.get(performer.userRole);
+			const targetAuthority = authority.get(target.userRole ?? "MEMBER");
+
+			if (performerAuthority! <= targetAuthority!) {
+				return {
+					data: null,
+					message: "User Don't Have Authority to perform such action.",
+				};
+			}
+
+			const [data] = await tx
+				.insert(communityBanList)
+				.values({
+					communityId: payload.communityId,
+					userId: payload.userId,
+				})
+				.returning();
+
+			return { data, message: null };
+		});
+
+		if (!data) {
+			return {
+				status: 401,
+				message,
+			};
+		}
+
+		return {
+			status: 201,
+			data,
+		};
+	} catch (error) {
+		if (error instanceof DrizzleQueryError) {
+			if (error?.cause?.message.includes("duplicate key value")) {
+				return {
+					status: 400,
+					message: `User is already in banlist.`,
+				};
+			}
+			return {
+				status: 400,
+				message: error.cause?.message ?? error.message,
+			};
+		}
+
 		if (error instanceof Error) {
 			return {
 				status: 400,

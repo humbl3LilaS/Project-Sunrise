@@ -1,12 +1,10 @@
 import {
 	integer,
 	pgTable,
+	primaryKey,
+	text,
 	uuid,
 	varchar,
-	text,
-	primaryKey,
-	boolean,
-	PgTable,
 } from "drizzle-orm/pg-core";
 import { CommunityType, CommunityUserRole, UserRole } from "./enum";
 
@@ -59,3 +57,5 @@ export const communityBanList = pgTable(
 	},
 	(table) => [primaryKey({ columns: [table.userId, table.communityId] })],
 );
+
+export type TCommunityBanList = typeof communityBanList.$inferInsert;

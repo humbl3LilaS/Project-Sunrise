@@ -1,0 +1,27 @@
+meta {
+  name: Ban Certain User From the Community
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:3000/api/v0/community/ban-user
+  body: json
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..C2WLrrYw-kztn3n_qg_rwA.umy3dgRKi8DHtUWBrzLqqszppADwbEj6F6kxoWA3HZzNNyIn4OVZMF8V42t0RMJz8iTVrWpgCGFNZpXUdBAYUxGbfsJNxHc0AFhZGXAet13qrRL1iQ47wUvB2XZpcy_6zbggaqHBoAhjXSGgtO7lhNNFO5NW67fmp5GcE076mUUwbtyKIyiwENMJLRTfWRNh.uYrvL7w_B0NhaBlykmer2A
+}
+
+body:json {
+  {
+    "userId": "8a36fad4-6b8f-4d73-ac02-fa0672b70397",
+    "communityId": "e0909f7e-2a51-4a59-9380-de3b6d300bdf"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

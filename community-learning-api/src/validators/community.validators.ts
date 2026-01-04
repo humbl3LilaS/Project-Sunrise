@@ -1,9 +1,16 @@
 import { createInsertSchema } from "drizzle-zod";
-import { communityDetail } from "../db/schema";
 import z from "zod";
+import { communityDetail } from "../db/schema";
 
 export const communityDetailInsertSchema = createInsertSchema(
 	communityDetail,
 ).omit({ id: true });
 
 export type VTCommunityDetail = z.infer<typeof communityDetailInsertSchema>;
+
+export const banUserPayloadSchema = z.object({
+	communityId: z.string().min(1, { message: "Community ID is required" }),
+	userId: z.string().min(1, { message: "User ID is required" }),
+});
+
+export type VTBanUserPayload = z.infer<typeof banUserPayloadSchema>;

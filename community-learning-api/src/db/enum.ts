@@ -18,3 +18,5 @@ export const CommunityUserRole = pgEnum("community_user_role", [
 	"MODERATOR",
 	"MEMBER",
 ]);
+
+export type TCommunityUserRole = (typeof CommunityUserRole.enumValues)[number];

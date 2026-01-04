@@ -116,9 +116,9 @@ export const getUserData = async (
 	userid: string,
 ): Promise<
 	| {
-		status: 200;
-		data: TUsers;
-	}
+			status: 200;
+			data: TUsers;
+	  }
 	| { status: 404 | 500; message: string }
 > => {
 	try {
@@ -152,9 +152,9 @@ export const updateUserData = async (
 	payload: VTUserInfoUpdate,
 ): Promise<
 	| {
-		status: 200;
-		data: TUsers;
-	}
+			status: 200;
+			data: TUsers;
+	  }
 	| { status: 404 | 500; message: string }
 > => {
 	try {
