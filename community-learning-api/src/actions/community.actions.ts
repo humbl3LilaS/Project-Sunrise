@@ -82,6 +82,48 @@ export const getAllPublicCommunity = async (
 	}
 };
 
+export const getCommunityById = async (
+	communityId: string,
+): Promise<
+	| { status: 200; data: TCommnityDetail }
+	| { status: 404 | 500 | 400; message: string }
+> => {
+	try {
+		const [data] = await db
+			.select()
+			.from(communityDetail)
+			.where(eq(communityDetail.id, communityId));
+		if (!data) {
+			return {
+				status: 404,
+				message: "Community not found",
+			};
+		}
+		return {
+			status: 200,
+			data,
+		};
+	} catch (error) {
+		if (error instanceof DrizzleQueryError) {
+			return {
+				status: 404,
+				message: "Community not found",
+			};
+		}
+
+		if (error instanceof Error) {
+			return {
+				status: 400,
+				message: error.message,
+			};
+		}
+		return {
+			status: 500,
+			message: "Internal Server Error",
+		};
+	}
+};
+
 export const createNewCommunity = async (
 	userid: string,
 	payload: VTCommunityDetail,

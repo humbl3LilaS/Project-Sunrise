@@ -3,6 +3,7 @@ import {
 	addUserToBanList,
 	createNewCommunity,
 	getAllPublicCommunity,
+	getCommunityById,
 } from "../actions/community.actions";
 import { validateJWT } from "../middleware";
 import { czValidator } from "../util/zod-validator";
@@ -66,3 +67,12 @@ community.post(
 		return ctx.json({ success: true, data: res.data });
 	},
 );
+
+community.get("/:id", async (ctx) => {
+	const id = ctx.req.param("id");
+	const res = await getCommunityById(id);
+	if (res.status !== 200) {
+		return ctx.json({ success: false, messsage: res.message }, res.status);
+	}
+	return ctx.json({ success: true, data: res.data }, res.status);
+});
