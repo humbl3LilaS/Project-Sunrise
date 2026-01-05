@@ -1,7 +1,30 @@
 {
 	"compilerOptions": {
-		"strict": true,
-		"jsx": "react-jsx",
-		"jsxImportSource": "hono/jsx"
-	}
+		"target": "ES2022", // Modern JS output
+		"module": "ESNext", // Keep native ESM modules
+		"moduleResolution": "node", // Resolve Node-style imports
+		"lib": ["ES2022", "DOM"], // Include ES2022 and DOM APIs
+		"strict": true, // Enable all strict type checks
+		"esModuleInterop": true, // For compatibility with commonjs imports
+		"forceConsistentCasingInFileNames": true, // Prevent casing issues
+		"skipLibCheck": true, // Skip type check of node_modules
+		"resolveJsonModule": true, // Allow importing JSON files
+		"noImplicitAny": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noFallthroughCasesInSwitch": true,
+		"allowSyntheticDefaultImports": true, // Makes default imports easier
+		"sourceMap": true, // Optional, for debugging
+		"outDir": "dist", // Output folder
+		"baseUrl": ".", // Base for path aliases
+		"paths": {
+			// Project-wide aliases
+			"@src/*": ["src/*"],
+			"@types/*": ["types/*"],
+			"@utils/*": ["src/utils/*"],
+			"@db/*": ["src/db/*"]
+		}
+	},
+	"include": ["src", "types"], // Include source and shared types
+	"exclude": ["node_modules", "dist"] // Exclude build output
 }

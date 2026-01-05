@@ -5,7 +5,7 @@ import {
 	getAllPublicCommunity,
 	getCommunityById,
 } from "../actions/community.actions";
-import { validateJWT } from "../middleware";
+import { validateJWT } from "../middleware/index";
 import { czValidator } from "../util/zod-validator";
 import {
 	banUserPayloadSchema,

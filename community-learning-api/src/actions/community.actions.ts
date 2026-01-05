@@ -1,5 +1,9 @@
 import { and, DrizzleQueryError, eq, isNull, ne, or } from "drizzle-orm";
 import { union } from "drizzle-orm/pg-core";
+import {
+	communityUserRoleWeight as authority,
+	HTTPStatus,
+} from "../constants/index";
 import { db } from "../db/drizzle";
 import type { TCommnityDetail, TCommunityBanList } from "../db/schema";
 import {
@@ -7,11 +11,12 @@ import {
 	communityDetail,
 	communityUsers,
 } from "../db/schema";
+import type { ActionResponse, THttpStatus } from "../types/util";
+
 import type {
 	VTBanUserPayload,
 	VTCommunityDetail,
 } from "../validators/community.validators";
-import { communityUserRoleWeight as authority } from "../constants/index";
 
 export const getAllPublicCommunity = async (
 	userid: string,
@@ -84,23 +89,21 @@ export const getAllPublicCommunity = async (
 
 export const getCommunityById = async (
 	communityId: string,
-): Promise<
-	| { status: 200; data: TCommnityDetail }
-	| { status: 404 | 500 | 400; message: string }
-> => {
+): ActionResponse<THttpStatus.OK, TCommnityDetail> => {
 	try {
+		console.log(communityId);
 		const [data] = await db
 			.select()
 			.from(communityDetail)
 			.where(eq(communityDetail.id, communityId));
 		if (!data) {
 			return {
-				status: 404,
+				status: HTTPStatus.NotFound,
 				message: "Community not found",
 			};
 		}
 		return {
-			status: 200,
+			status: HTTPStatus.OK,
 			data,
 		};
 	} catch (error) {
