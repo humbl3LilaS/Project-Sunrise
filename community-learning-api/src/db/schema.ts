@@ -45,7 +45,7 @@ export const communityUsers = pgTable(
 export type TCommunityUsers = typeof communityUsers.$inferSelect;
 
 /**
- * This table store the user who are banned from certain community.
+ * This table stores the users who are banned from certain community.
  */
 export const communityBanList = pgTable(
 	"community_banlist",

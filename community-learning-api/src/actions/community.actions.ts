@@ -11,7 +11,7 @@ import type {
 	VTBanUserPayload,
 	VTCommunityDetail,
 } from "../validators/community.validators";
-import { communityUserRoleWeight as authority } from "./constants";
+import { communityUserRoleWeight as authority } from "../constants/index";
 
 export const getAllPublicCommunity = async (
 	userid: string,
