@@ -20,10 +20,7 @@ import type {
 
 export const getAllPublicCommunity = async (
 	userid: string,
-): Promise<
-	| { status: 200; data: TCommnityDetail[] }
-	| { status: 400 | 500; message: string }
-> => {
+): ActionResponse<THttpStatus.OK, TCommnityDetail[]> => {
 	try {
 		/*
 		 * This query select all communities which are "PUBLIC" and User has not been banned on.
@@ -70,18 +67,18 @@ export const getAllPublicCommunity = async (
 		const result = await union(publicCommunities, userRelatedCommunities);
 
 		return {
-			status: 200,
+			status: HTTPStatus.OK,
 			data: result,
 		};
 	} catch (error) {
 		if (error instanceof Error) {
 			return {
-				status: 400,
+				status: HTTPStatus.NotFound,
 				message: error.message,
 			};
 		}
 		return {
-			status: 500,
+			status: HTTPStatus.InternalServerError,
 			message: "Internal Server Error",
 		};
 	}
@@ -109,19 +106,19 @@ export const getCommunityById = async (
 	} catch (error) {
 		if (error instanceof DrizzleQueryError) {
 			return {
-				status: 404,
+				status: HTTPStatus.NotFound,
 				message: "Community not found",
 			};
 		}
 
 		if (error instanceof Error) {
 			return {
-				status: 400,
+				status: HTTPStatus.BadRequest,
 				message: error.message,
 			};
 		}
 		return {
-			status: 500,
+			status: HTTPStatus.InternalServerError,
 			message: "Internal Server Error",
 		};
 	}
@@ -130,9 +127,7 @@ export const getCommunityById = async (
 export const createNewCommunity = async (
 	userid: string,
 	payload: VTCommunityDetail,
-): Promise<
-	{ status: 201; data: TCommnityDetail } | { status: 400 | 500; message: string }
-> => {
+): ActionResponse<THttpStatus.Created, TCommnityDetail> => {
 	try {
 		const community = await db.transaction(async (tx) => {
 			const [community] = await db
@@ -161,12 +156,12 @@ export const createNewCommunity = async (
 		});
 		if (!community) {
 			return {
-				status: 400,
+				status: HTTPStatus.BadRequest,
 				message: "Community Creation Failed",
 			};
 		}
 		return {
-			status: 201,
+			status: HTTPStatus.Created,
 			data: community,
 		};
 	} catch (error) {
@@ -174,23 +169,23 @@ export const createNewCommunity = async (
 			const cause = error.cause?.message;
 			if (cause!.includes("community_detail_name_unique")) {
 				return {
-					status: 400,
+					status: HTTPStatus.BadRequest,
 					message: `Community with name "${payload.name}" already exist.`,
 				};
 			}
 			return {
-				status: 400,
+				status: HTTPStatus.BadRequest,
 				message: error.cause?.message ?? "Internal Server Error",
 			};
 		}
 		if (error instanceof Error) {
 			return {
-				status: 400,
+				status: HTTPStatus.BadRequest,
 				message: error.message,
 			};
 		}
 		return {
-			status: 500,
+			status: HTTPStatus.InternalServerError,
 			message: "Internal Server Error",
 		};
 	}
@@ -199,10 +194,7 @@ export const createNewCommunity = async (
 export const addUserToBanList = async (
 	userid: string,
 	payload: VTBanUserPayload,
-): Promise<
-	| { status: 201; data: TCommunityBanList }
-	| { status: 401 | 400 | 500; message: string }
-> => {
+): ActionResponse<THttpStatus.Created, TCommunityBanList> => {
 	try {
 		const { data, message } = await db.transaction(async (tx) => {
 			const [performer] = await tx
@@ -255,37 +247,37 @@ export const addUserToBanList = async (
 
 		if (!data) {
 			return {
-				status: 401,
+				status: HTTPStatus.Unauthorized,
 				message,
 			};
 		}
 
 		return {
-			status: 201,
+			status: HTTPStatus.Created,
 			data,
 		};
 	} catch (error) {
 		if (error instanceof DrizzleQueryError) {
 			if (error?.cause?.message.includes("duplicate key value")) {
 				return {
-					status: 400,
+					status: HTTPStatus.BadRequest,
 					message: `User is already in banlist.`,
 				};
 			}
 			return {
-				status: 400,
+				status: HTTPStatus.BadRequest,
 				message: error.cause?.message ?? error.message,
 			};
 		}
 
 		if (error instanceof Error) {
 			return {
-				status: 400,
+				status: HTTPStatus.BadRequest,
 				message: error.message,
 			};
 		}
 		return {
-			status: 500,
+			status: HTTPStatus.InternalServerError,
 			message: "Internal Server Error",
 		};
 	}
