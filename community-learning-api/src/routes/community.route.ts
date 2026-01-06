@@ -1,9 +1,11 @@
+import { HTTPStatus } from "@src/constants";
 import { Hono } from "hono";
 import {
 	addUserToBanList,
 	createNewCommunity,
 	getAllPublicCommunity,
 	getCommunityById,
+	joinCommunity,
 } from "../actions/community.actions";
 import { validateJWT } from "../middleware/index";
 import { czValidator } from "../util/zod-validator";
@@ -71,8 +73,18 @@ community.post(
 community.get("/:id", async (ctx) => {
 	const id = ctx.req.param("id");
 	const res = await getCommunityById(id);
-	if (res.status !== 200) {
+	if (res.status !== HTTPStatus.OK) {
 		return ctx.json({ success: false, messsage: res.message }, res.status);
+	}
+	return ctx.json({ success: true, data: res.data }, res.status);
+});
+
+community.post("/:id/join", validateJWT, async (ctx) => {
+	const { userid } = ctx.var.jwtToken;
+	const communityId = ctx.req.param("id");
+	const res = await joinCommunity(userid, communityId);
+	if (res.status !== HTTPStatus.Created) {
+		return ctx.json({ success: false, message: res.message }, res.status);
 	}
 	return ctx.json({ success: true, data: res.data }, res.status);
 });

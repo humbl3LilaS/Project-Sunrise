@@ -1,3 +1,4 @@
+import { isDuplicatedKeyValueConstraintViolation } from "@src/util/pg-error-helper";
 import { and, DrizzleQueryError, eq, isNull, ne, or } from "drizzle-orm";
 import { union } from "drizzle-orm/pg-core";
 import {
@@ -5,14 +6,17 @@ import {
 	HTTPStatus,
 } from "../constants/index";
 import { db } from "../db/drizzle";
-import type { TCommnityDetail, TCommunityBanList } from "../db/schema";
+import type {
+	TCommnityDetail,
+	TCommunityBanList,
+	TCommunityUsers,
+} from "../db/schema";
 import {
 	communityBanList,
 	communityDetail,
 	communityUsers,
 } from "../db/schema";
 import type { ActionResponse, THttpStatus } from "../types/util";
-
 import type {
 	VTBanUserPayload,
 	VTCommunityDetail,
@@ -270,6 +274,40 @@ export const addUserToBanList = async (
 			};
 		}
 
+		if (error instanceof Error) {
+			return {
+				status: HTTPStatus.BadRequest,
+				message: error.message,
+			};
+		}
+		return {
+			status: HTTPStatus.InternalServerError,
+			message: "Internal Server Error",
+		};
+	}
+};
+
+export const joinCommunity = async (
+	userId: string,
+	communityId: string,
+): ActionResponse<THttpStatus.Created, TCommunityUsers> => {
+	try {
+		const [data] = await db
+			.insert(communityUsers)
+			.values({
+				userId,
+				communityId,
+			})
+			.returning();
+
+		return { status: HTTPStatus.Created, data };
+	} catch (error) {
+		if (isDuplicatedKeyValueConstraintViolation(error)) {
+			return {
+				status: HTTPStatus.BadRequest,
+				message: "User already registered into the community",
+			};
+		}
 		if (error instanceof Error) {
 			return {
 				status: HTTPStatus.BadRequest,
