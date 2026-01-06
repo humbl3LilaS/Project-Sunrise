@@ -1,4 +1,7 @@
-import { isDuplicatedKeyValueConstraintViolation } from "@src/util/pg-error-helper";
+import {
+	CTransactionRollbackError,
+	isDuplicatedKeyValueConstraintViolation,
+} from "@src/util/pg-error-helper";
 import { and, DrizzleQueryError, eq, isNull, ne, or } from "drizzle-orm";
 import { union } from "drizzle-orm/pg-core";
 import {
@@ -200,7 +203,7 @@ export const addUserToBanList = async (
 	payload: VTBanUserPayload,
 ): ActionResponse<THttpStatus.Created, TCommunityBanList> => {
 	try {
-		const { data, message } = await db.transaction(async (tx) => {
+		const { data } = await db.transaction(async (tx) => {
 			const [performer] = await tx
 				.select()
 				.from(communityUsers)
@@ -212,10 +215,10 @@ export const addUserToBanList = async (
 				);
 
 			if (!performer || !performer.userRole) {
-				return {
-					data: null,
-					message: "User Don't Have Authority to perform such action.",
-				};
+				throw new CTransactionRollbackError(
+					"User Don't Have Authority to perform such action.",
+					HTTPStatus.Unauthorized,
+				);
 			}
 
 			const [target] = await tx
@@ -223,19 +226,25 @@ export const addUserToBanList = async (
 				.from(communityUsers)
 				.where(
 					and(
-						eq(communityUsers.userId, userid),
+						eq(communityUsers.userId, payload.userId),
 						eq(communityUsers.communityId, payload.communityId),
 					),
 				);
+			if (!target) {
+				throw new CTransactionRollbackError(
+					"Can't ban user who aren't the member of this community",
+					HTTPStatus.BadRequest,
+				);
+			}
 
 			const performerAuthority = authority.get(performer.userRole);
 			const targetAuthority = authority.get(target.userRole ?? "MEMBER");
 
 			if (performerAuthority! <= targetAuthority!) {
-				return {
-					data: null,
-					message: "User Don't Have Authority to perform such action.",
-				};
+				throw new CTransactionRollbackError(
+					"User Don't Have Authority to perform such action.",
+					HTTPStatus.Unauthorized,
+				);
 			}
 
 			const [data] = await tx
@@ -246,34 +255,26 @@ export const addUserToBanList = async (
 				})
 				.returning();
 
-			return { data, message: null };
+			return { data };
 		});
-
-		if (!data) {
-			return {
-				status: HTTPStatus.Unauthorized,
-				message,
-			};
-		}
 
 		return {
 			status: HTTPStatus.Created,
 			data,
 		};
 	} catch (error) {
-		if (error instanceof DrizzleQueryError) {
-			if (error?.cause?.message.includes("duplicate key value")) {
-				return {
-					status: HTTPStatus.BadRequest,
-					message: `User is already in banlist.`,
-				};
-			}
+		if (error instanceof CTransactionRollbackError) {
 			return {
-				status: HTTPStatus.BadRequest,
-				message: error.cause?.message ?? error.message,
+				status: error.status,
+				message: error.message,
 			};
 		}
-
+		if (isDuplicatedKeyValueConstraintViolation(error)) {
+			return {
+				status: HTTPStatus.BadRequest,
+				message: `User is already in banlist.`,
+			};
+		}
 		if (error instanceof Error) {
 			return {
 				status: HTTPStatus.BadRequest,
