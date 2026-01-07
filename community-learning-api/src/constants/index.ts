@@ -16,3 +16,7 @@ export const HTTPStatus = {
 	InternalServerError: 500,
 	NotImplemented: 501,
 } as const;
+
+export const PostgresErrorCode = {
+	"22P02": "Invalid Input Syntax",
+};

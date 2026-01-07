@@ -306,7 +306,7 @@ export const joinCommunity = async (
 		if (isDuplicatedKeyValueConstraintViolation(error)) {
 			return {
 				status: HTTPStatus.BadRequest,
-				message: "User already registered into the community",
+				message: "User already registered into the community.",
 			};
 		}
 		if (error instanceof Error) {
@@ -318,6 +318,71 @@ export const joinCommunity = async (
 		return {
 			status: HTTPStatus.InternalServerError,
 			message: "Internal Server Error",
+		};
+	}
+};
+
+export const leaveCommunity = async (
+	userId: string,
+	communityId: string,
+): ActionResponse<THttpStatus.OK, TCommunityBanList> => {
+	try {
+		const data = await db.transaction(async (tx) => {
+			const [role] = await tx
+				.select({ role: communityUsers.userRole })
+				.from(communityUsers)
+				.where(
+					and(
+						eq(communityUsers.communityId, communityId),
+						eq(communityUsers.userId, userId),
+					),
+				);
+			if (!role) {
+				throw new CTransactionRollbackError(
+					"User is not apart of this community.",
+					HTTPStatus.BadRequest,
+				);
+			}
+
+			if (role.role === "OWNER") {
+				throw new CTransactionRollbackError(
+					"Owner cannot leave the community without transfering ownership to other user.",
+					HTTPStatus.BadRequest,
+				);
+			}
+			const [data] = await tx
+				.delete(communityUsers)
+				.where(
+					and(
+						eq(communityUsers.userId, userId),
+						eq(communityUsers.communityId, communityId),
+					),
+				)
+				.returning();
+
+			return data;
+		});
+		return {
+			status: HTTPStatus.OK,
+			data,
+		};
+	} catch (error) {
+		if (error instanceof CTransactionRollbackError) {
+			return {
+				status: error.status,
+				message: error.message,
+			};
+		}
+
+		if (error instanceof Error) {
+			return {
+				status: HTTPStatus.BadRequest,
+				message: error.message,
+			};
+		}
+		return {
+			status: HTTPStatus.InternalServerError,
+			message: "Internal Server Error.",
 		};
 	}
 };

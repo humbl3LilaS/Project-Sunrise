@@ -6,6 +6,7 @@ import {
 	getAllPublicCommunity,
 	getCommunityById,
 	joinCommunity,
+	leaveCommunity,
 } from "../actions/community.actions";
 import { validateJWT } from "../middleware/index";
 import { czValidator } from "../util/zod-validator";
@@ -87,4 +88,14 @@ community.post("/:id/join", validateJWT, async (ctx) => {
 		return ctx.json({ success: false, message: res.message }, res.status);
 	}
 	return ctx.json({ success: true, data: res.data }, res.status);
+});
+
+community.post("/:id/leave", validateJWT, async (ctx) => {
+	const { userid } = ctx.var.jwtToken;
+	const communityId = ctx.req.param("id");
+	const res = await leaveCommunity(userid, communityId);
+	if (res.status !== HTTPStatus.OK) {
+		return ctx.json({ success: false, mesage: res.message }, res.status);
+	}
+	return ctx.json({ success: true, data: res.data });
 });
