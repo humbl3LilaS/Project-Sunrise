@@ -1,3 +1,8 @@
+import {
+	HTTPStatus,
+	PostgresErrorCode,
+	TPostgresErrorCode,
+} from "@src/constants";
 import { DrizzleQueryError } from "drizzle-orm";
 import type {
 	ClientErrorStatusCode,
@@ -21,4 +26,25 @@ export const isDuplicatedKeyValueConstraintViolation = (error: unknown) => {
 		"code" in error.cause! &&
 		error.cause.code === "23505"
 	);
+};
+
+// TODO: Refactor this function to support multilple postgres error code.
+export const normalizeDrizzleError = (error: DrizzleQueryError) => {
+	if ("code" in error.cause!) {
+		const message = PostgresErrorCode[error.cause?.code as TPostgresErrorCode];
+		if (!message) {
+			return {
+				status: HTTPStatus.BadRequest,
+				message: "Invalid User Request.",
+			};
+		}
+		return {
+			status: HTTPStatus.BadRequest,
+			message,
+		};
+	}
+	return {
+		status: HTTPStatus.BadRequest,
+		message: "Invalid User Request.",
+	};
 };

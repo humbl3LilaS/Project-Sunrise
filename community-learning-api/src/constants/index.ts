@@ -17,6 +17,9 @@ export const HTTPStatus = {
 	NotImplemented: 501,
 } as const;
 
+// TODO: Refactor this later
 export const PostgresErrorCode = {
-	"22P02": "Invalid Input Syntax",
-};
+	"22P02": "Invalid Input Syntax For Operation Query Condition.",
+} as const;
+
+export type TPostgresErrorCode = keyof typeof PostgresErrorCode;

@@ -1,6 +1,7 @@
 import {
 	CTransactionRollbackError,
 	isDuplicatedKeyValueConstraintViolation,
+	normalizeDrizzleError,
 } from "@src/util/pg-error-helper";
 import { and, DrizzleQueryError, eq, isNull, ne, or } from "drizzle-orm";
 import { union } from "drizzle-orm/pg-core";
@@ -374,6 +375,9 @@ export const leaveCommunity = async (
 			};
 		}
 
+		if (error instanceof DrizzleQueryError) {
+			return normalizeDrizzleError(error);
+		}
 		if (error instanceof Error) {
 			return {
 				status: HTTPStatus.BadRequest,
