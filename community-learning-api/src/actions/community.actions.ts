@@ -390,3 +390,78 @@ export const leaveCommunity = async (
 		};
 	}
 };
+
+export const deleteCommunity = async (
+	userId: string,
+	communityId: string,
+): ActionResponse<THttpStatus.OK, null> => {
+	try {
+		await db.transaction(async (tx) => {
+			const [userAuthority] = await tx
+				.select({ authority: communityUsers.userRole })
+				.from(communityUsers)
+				.where(
+					and(
+						eq(communityUsers.userId, userId),
+						eq(communityUsers.communityId, communityId),
+					),
+				);
+
+			if (!userAuthority || !userAuthority.authority) {
+				throw new CTransactionRollbackError(
+					"Community Not Found",
+					HTTPStatus.BadRequest,
+				);
+			}
+
+			if (userAuthority.authority !== "OWNER") {
+				throw new CTransactionRollbackError(
+					"User don't have enought authority to delete this community",
+					HTTPStatus.Forbidden,
+				);
+			}
+
+			const [deletedCommunity] = await tx
+				.delete(communityDetail)
+				.where(eq(communityDetail.id, communityId))
+				.returning();
+
+			if (!deletedCommunity) {
+				throw new CTransactionRollbackError(
+					"Community Not Found",
+					HTTPStatus.BadRequest,
+				);
+			}
+		});
+
+		return {
+			status: HTTPStatus.OK,
+			data: null,
+		};
+	} catch (error) {
+		if (error instanceof CTransactionRollbackError) {
+			return {
+				status: error.status,
+				message: error.message,
+			};
+		}
+
+		if (error instanceof DrizzleQueryError) {
+			return normalizeDrizzleError(error);
+		}
+
+		if (error instanceof DrizzleQueryError) {
+			return normalizeDrizzleError(error);
+		}
+		if (error instanceof Error) {
+			return {
+				status: HTTPStatus.BadRequest,
+				message: error.message,
+			};
+		}
+		return {
+			status: HTTPStatus.InternalServerError,
+			message: "Internal Server Error.",
+		};
+	}
+};

@@ -3,6 +3,7 @@ import { Hono } from "hono";
 import {
 	addUserToBanList,
 	createNewCommunity,
+	deleteCommunity,
 	getAllPublicCommunity,
 	getCommunityById,
 	joinCommunity,
@@ -80,10 +81,26 @@ community.get("/:id", async (ctx) => {
 	return ctx.json({ success: true, data: res.data }, res.status);
 });
 
+community.delete("/:id", validateJWT, async (ctx) => {
+	const { userid } = ctx.var.jwtToken;
+	const communityId = ctx.req.param("id");
+
+	const res = await deleteCommunity(userid, communityId);
+
+	if (res.status !== HTTPStatus.OK) {
+		return ctx.json({ sucess: false, message: res.message }, res.status);
+	}
+	return ctx.json({
+		success: true,
+	});
+});
+
 community.post("/:id/join", validateJWT, async (ctx) => {
 	const { userid } = ctx.var.jwtToken;
 	const communityId = ctx.req.param("id");
+
 	const res = await joinCommunity(userid, communityId);
+
 	if (res.status !== HTTPStatus.Created) {
 		return ctx.json({ success: false, message: res.message }, res.status);
 	}
@@ -93,7 +110,9 @@ community.post("/:id/join", validateJWT, async (ctx) => {
 community.post("/:id/leave", validateJWT, async (ctx) => {
 	const { userid } = ctx.var.jwtToken;
 	const communityId = ctx.req.param("id");
+
 	const res = await leaveCommunity(userid, communityId);
+
 	if (res.status !== HTTPStatus.OK) {
 		return ctx.json({ success: false, mesage: res.message }, res.status);
 	}

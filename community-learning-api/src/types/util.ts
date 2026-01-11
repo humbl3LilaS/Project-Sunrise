@@ -8,6 +8,7 @@ import type { HTTPStatus } from "../constants/index";
 export namespace THttpStatus {
 	export type OK = typeof HTTPStatus.OK;
 	export type Created = typeof HTTPStatus.Created;
+	export type NoContent = typeof HTTPStatus.NoContent;
 }
 
 // const StatusType = {
