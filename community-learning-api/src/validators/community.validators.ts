@@ -1,6 +1,8 @@
-import { createInsertSchema } from "drizzle-zod";
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import z from "zod";
 import { communityDetail } from "../db/schema";
+
+export const CommunityDetailSelectSchema = createSelectSchema(communityDetail);
 
 export const communityDetailInsertSchema = createInsertSchema(
 	communityDetail,

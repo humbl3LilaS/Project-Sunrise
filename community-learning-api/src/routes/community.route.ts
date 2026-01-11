@@ -1,5 +1,4 @@
 import { HTTPStatus } from "@src/constants";
-import { Hono } from "hono";
 import {
 	addUserToBanList,
 	createNewCommunity,
@@ -15,8 +14,10 @@ import {
 	banUserPayloadSchema,
 	communityDetailInsertSchema,
 } from "../validators/community.validators";
+import { OpenAPIHono } from "@hono/zod-openapi";
+import { GetCommunityById } from "@src/docs/community.docs";
 
-export const community = new Hono();
+export const community = new OpenAPIHono();
 
 community.get("/", validateJWT, async (ctx) => {
 	const { userid } = ctx.var.jwtToken;
@@ -72,7 +73,7 @@ community.post(
 	},
 );
 
-community.get("/:id", async (ctx) => {
+community.openapi(GetCommunityById, async (ctx) => {
 	const id = ctx.req.param("id");
 	const res = await getCommunityById(id);
 	if (res.status !== HTTPStatus.OK) {
