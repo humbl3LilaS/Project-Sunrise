@@ -19,10 +19,15 @@
 		"baseUrl": ".", // Base for path aliases
 		"paths": {
 			// Project-wide aliases
-			"@src/*": ["src/*"],
-			"@types/*": ["types/*"],
 			"@utils/*": ["src/utils/*"],
-			"@db/*": ["src/db/*"]
+			"@db/*": ["src/db/*"],
+			"@middlewares/*": ["src/middlewares/*"],
+			"@routes/*": ["src/routes/*"],
+			"@doc/*": ["src/doc/*"],
+			"@actions/*": ["src/actions/*"],
+			"@valid/*": ["src/validators/*"],
+			"@const/*": ["src/constants/*"],
+			"@src/*": ["src/*"]
 		}
 	},
 	"include": ["src", "types"], // Include source and shared types

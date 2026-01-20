@@ -1,10 +1,23 @@
 import { createRoute, z } from "@hono/zod-openapi";
-import { CommunityDetailSelectSchema } from "@src/validators/community.validators";
+import { communityDetailSelectSchema } from "@src/validators/community.validators";
+import { cz } from "@utils/open-api-zod";
 
-const CommunityId = z.object({
-	id: z
-		.uuid()
-		.openapi({ param: { name: "id", in: "path" }, example: "asdfafadfs" }),
+export const CommunityId = z.object({
+	id: z.uuid().openapi({
+		param: { name: "id", in: "path" },
+		example: "6eb791c8-849e-453d-bf66-1d907a4485fa",
+	}),
+});
+
+export const createOpenApiSuccessRequest = <T>(schema: T) =>
+	cz.object({
+		success: cz.literal(true),
+		data: schema,
+	});
+
+export const OpenApiErrorResponse = cz.object({
+	success: cz.literal(false),
+	message: cz.string(),
 });
 
 export const GetCommunityById = createRoute({
@@ -17,10 +30,35 @@ export const GetCommunityById = createRoute({
 		200: {
 			content: {
 				"application/json": {
-					schema: CommunityDetailSelectSchema,
+					schema: createOpenApiSuccessRequest(communityDetailSelectSchema),
 				},
 			},
-			description: "Retrieve Community using Community ID",
+			description: "Success Response",
+		},
+		404: {
+			description: "Not Found Error",
+			content: {
+				"application/json": {
+					schema: OpenApiErrorResponse,
+				},
+			},
+		},
+		400: {
+			description: "Bad Request",
+			content: {
+				"application/json": {
+					schema: OpenApiErrorResponse,
+				},
+			},
+		},
+		501: {
+			description: "Internal Server Error.",
+			content: {
+				"application/json": {
+					schema: OpenApiErrorResponse,
+				},
+			},
 		},
 	},
+	description: "Retrieve Community using Community ID",
 });

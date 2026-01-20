@@ -1,12 +1,8 @@
+import type { AppEnv } from "@src/types/util";
+import { decryptJWTToken } from "@utils/jwt";
 import { createMiddleware } from "hono/factory";
-import { decryptJWTToken } from "../util/jwt";
-import type { VTJwtPayload } from "../validators/sso.validators";
 
-export const validateJWT = createMiddleware<{
-	Variables: {
-		jwtToken: VTJwtPayload;
-	};
-}>(async (ctx, next) => {
+export const validateJWT = createMiddleware<AppEnv>(async (ctx, next) => {
 	const authorizationHeader = ctx.req.header("Authorization");
 	if (!authorizationHeader) {
 		return ctx.json(

@@ -6,6 +6,7 @@ import {
 	uuid,
 	varchar,
 } from "drizzle-orm/pg-core";
+import { createSelectSchema } from "drizzle-zod";
 import { CommunityType, CommunityUserRole, UserRole } from "./enum";
 
 export const users = pgTable("users", {
@@ -17,6 +18,7 @@ export const users = pgTable("users", {
 	email: varchar({ length: 255 }).notNull().unique(),
 });
 
+export const DBUserSchema = createSelectSchema(users);
 export type TUsers = typeof users.$inferSelect;
 
 // TODO: Update the communityDetail schema to include createdAt timestmap and updatedAt timestamp.

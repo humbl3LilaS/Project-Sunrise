@@ -1,15 +1,17 @@
-import { DrizzleQueryError, eq } from "drizzle-orm";
-import { db } from "../db/drizzle";
-import type { TUsers } from "../db/schema";
-import { users } from "../db/schema";
-import { generateJWTToken } from "../util/jwt";
+import { db } from "@db/drizzle";
+import { type TUsers, users } from "@db/schema";
+import { HttpStatus, type TActionResponse } from "@src/types/util";
+import { generateJWTToken } from "@utils/jwt";
 import type {
 	VTSignInSchema,
 	VTSignUpSchema,
 	VTUserInfoUpdate,
-} from "../validators/sso.validators";
+} from "@valid/sso.validators";
+import { DrizzleQueryError, eq } from "drizzle-orm";
 
-export const registerUser = async (payload: VTSignUpSchema) => {
+export const registerUser = async (
+	payload: VTSignUpSchema,
+): TActionResponse<string, 201 | 400 | 500> => {
 	try {
 		const encryptedPassword = await Bun.password.hash(payload.password, {
 			algorithm: "bcrypt",
@@ -30,33 +32,34 @@ export const registerUser = async (payload: VTSignUpSchema) => {
 		});
 
 		return {
-			success: true,
-			message: null,
-			token: jwt,
+			status: HttpStatus.Created,
+			data: jwt,
 		};
 	} catch (error) {
 		if (error instanceof DrizzleQueryError) {
 			const cause = error.cause?.message;
 			if (cause!.includes("users_email_unique")) {
 				return {
-					success: false,
+					status: HttpStatus.BadRequest,
 					message: `User account with email ${payload.email} already exist.`,
 				};
 			}
 			return {
-				success: false,
-				message: error.cause?.message,
+				status: HttpStatus.BadRequest,
+				message: error.cause?.message ?? error.message,
 			};
 		}
 
 		return {
-			success: true,
+			status: HttpStatus.InternalServerError,
 			message: "Internal Server Error",
 		};
 	}
 };
 
-export const verifyUser = async (payload: VTSignInSchema) => {
+export const verifyUser = async (
+	payload: VTSignInSchema,
+): TActionResponse<string, 200 | 400 | 404 | 500> => {
 	try {
 		const [user] = await db
 			.select()
@@ -64,7 +67,7 @@ export const verifyUser = async (payload: VTSignInSchema) => {
 			.where(eq(users.email, payload.email));
 		if (!user) {
 			return {
-				success: false,
+				status: HttpStatus.NotFound,
 				message: `There is no user with email ${payload.email}`,
 			};
 		}
@@ -75,8 +78,8 @@ export const verifyUser = async (payload: VTSignInSchema) => {
 		);
 		if (!isPasswordMatch) {
 			return {
-				success: false,
-				message: "Invalid password",
+				status: HttpStatus.BadRequest,
+				message: "Invalid password.",
 			};
 		}
 
@@ -87,61 +90,54 @@ export const verifyUser = async (payload: VTSignInSchema) => {
 		});
 
 		return {
-			success: true,
-			message: "Login successfully",
-			token: jwt,
+			status: 200,
+			data: jwt,
 		};
 	} catch (error) {
 		if (error instanceof DrizzleQueryError) {
 			const cause = error.cause?.message;
 			if (cause!.includes("users_email_unique")) {
 				return {
-					success: false,
+					status: HttpStatus.BadRequest,
 					message: `User account with email ${payload.email} already exist.`,
 				};
 			}
 			return {
-				success: false,
-				message: error.cause?.message,
+				status: HttpStatus.BadRequest,
+				message: error.cause?.message ?? error.message,
 			};
 		}
 		return {
-			success: false,
-			message: "Internal Server Error",
+			status: HttpStatus.InternalServerError,
+			message: "Internal Server Error.",
 		};
 	}
 };
 
 export const getUserData = async (
 	userid: string,
-): Promise<
-	| {
-			status: 200;
-			data: TUsers;
-	  }
-	| { status: 404 | 500; message: string }
-> => {
+): TActionResponse<TUsers, 200 | 404 | 500> => {
 	try {
 		const [data] = await db.select().from(users).where(eq(users.id, userid));
 		if (!data) {
 			return {
-				status: 404,
+				status: HttpStatus.NotFound,
 				message: "User not found",
 			};
 		}
 		return {
-			status: 200,
+			status: HttpStatus.OK,
 			data,
 		};
 	} catch (error) {
 		if (error instanceof Error) {
 			return {
-				status: 500,
+				status: HttpStatus.InternalServerError,
 				message: `Internal Server Error: ${error.message}.`,
 			};
 		}
 		return {
-			status: 500,
+			status: HttpStatus.InternalServerError,
 			message: `Internal Server Error.`,
 		};
 	}
@@ -150,13 +146,7 @@ export const getUserData = async (
 export const updateUserData = async (
 	userid: string,
 	payload: VTUserInfoUpdate,
-): Promise<
-	| {
-			status: 200;
-			data: TUsers;
-	  }
-	| { status: 404 | 500; message: string }
-> => {
+): TActionResponse<TUsers, 200 | 404 | 500> => {
 	try {
 		const [data] = await db.select().from(users).where(eq(users.id, userid));
 		if (!data) {

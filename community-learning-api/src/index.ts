@@ -1,13 +1,16 @@
-import { cors } from "hono/cors";
-import { community } from "./routes/community.route";
-import { sso } from "./routes/sso.route";
-import { z } from "zod";
-import { extendZodWithOpenApi, OpenAPIHono } from "@hono/zod-openapi";
 import { swaggerUI } from "@hono/swagger-ui";
-
-extendZodWithOpenApi(z);
+import { OpenAPIHono } from "@hono/zod-openapi";
+import { cors } from "hono/cors";
+// import { community } from "./routes/community.route";
+import { sso } from "./routes/sso.route";
 
 const app = new OpenAPIHono();
+
+app.openAPIRegistry.registerComponent("securitySchemes", "BearerAuth", {
+	type: "http",
+	scheme: "bearer",
+	bearerFormat: "JWT",
+});
 
 app.get("/", (c) => {
 	return c.text("Hello Hono!");
@@ -34,6 +37,6 @@ app.use(
 );
 
 app.route("/api/v0/sso", sso);
-app.route("/api/v0/community", community);
+// app.route("/api/v0/community", community);
 
 export default app;

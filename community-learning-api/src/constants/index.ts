@@ -19,6 +19,18 @@ export const HTTPStatus = {
 	NotImplemented: 501,
 } as const;
 
+export const ApiErrorResponses = [400, 401, 403, 404, 422, 500] as const;
+export type TApiErrorResponses = (typeof ApiErrorResponses)[number];
+
+export const ErrorResponseDescirptionMap = [
+	{ status: 400, desc: "Response of Bad Request" },
+	{ status: 401, desc: "Response of Unauthorized Request" },
+	{ status: 403, desc: "Response of Forbidden Request" },
+	{ status: 404, desc: "Response of Not Found Request" },
+	{ status: 422, desc: "Response of Too Many Request" },
+	{ status: 500, desc: "Response of Internal Server Error" },
+] as unknown as Array<{ status: TApiErrorResponses; message: string }>;
+
 // TODO: Refactor this later
 export const PostgresErrorCode = {
 	"22P02": "Invalid Input Syntax For Operation Query Condition.",

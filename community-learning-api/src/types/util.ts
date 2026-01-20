@@ -1,34 +1,32 @@
-import type {
-	ClientErrorStatusCode,
-	ServerErrorStatusCode,
-	SuccessStatusCode,
-} from "hono/utils/http-status";
-import type { HTTPStatus } from "../constants/index";
+import type { VTJwtPayload } from "@valid/sso.validators";
 
-export namespace THttpStatus {
-	export type OK = typeof HTTPStatus.OK;
-	export type Created = typeof HTTPStatus.Created;
-	export type NoContent = typeof HTTPStatus.NoContent;
-}
+export const HttpStatus = {
+	OK: 200,
+	Created: 201,
+	NoContent: 204,
+	BadRequest: 400,
+	Unauthorized: 401,
+	NotFound: 404,
+	Forbidden: 403,
+	InternalServerError: 500,
+	NotImplemented: 501,
+} as const;
 
-// const StatusType = {
-// 	success: [HTTPStatus.OK, HTTPStatus.Created] as const,
-// 	userError: [
-// 		HTTPStatus.BadRequest,
-// 		HTTPStatus.Unauthorized,
-// 		HTTPStatus.NotFound,
-// 	] as const,
-// 	serverError: [
-// 		HTTPStatus.InternalServerError,
-// 		HTTPStatus.NotImplemented,
-// 	] as const,
-// } as const;
-//
-// export type SuccessStatuses = (typeof StatusType.success)[number];
-// export type UserErrorStatuses = (typeof StatusType.userError)[number];
-// export type ServerErrorStatuses = (typeof StatusType.serverError)[number];
+type HttpStatusCode = (typeof HttpStatus)[keyof typeof HttpStatus];
 
-export type ActionResponse<T extends SuccessStatusCode, D> = Promise<
-	| { status: T; data: D }
-	| { status: ServerErrorStatusCode | ClientErrorStatusCode; message: string }
->;
+type SuccessStatus = Extract<HttpStatusCode, 200 | 201 | 204>;
+type ErrorStatus = Exclude<HttpStatusCode, SuccessStatus>;
+type ActionStatusMap<T> = { [S in SuccessStatus]: { data: T } } & {
+	[E in ErrorStatus]: { message: string };
+};
+
+export type TActionResponse<
+	T,
+	S extends keyof ActionStatusMap<T> = keyof ActionStatusMap<T>,
+> = Promise<{ [K in S]: { status: K } & ActionStatusMap<T>[K] }[S]>;
+
+export type AppEnv = {
+	Variables: {
+		jwtToken: VTJwtPayload;
+	};
+};
