@@ -1,5 +1,10 @@
+import { DBCommunityDetailSchema } from "@db/schema";
 import { createRoute, z } from "@hono/zod-openapi";
 import { communityDetailSelectSchema } from "@src/validators/community.validators";
+import {
+	createOpenApiSuccessRequest,
+	OpenApiErrorResponse,
+} from "@utils/open-api-helpers";
 import { cz } from "@utils/open-api-zod";
 
 export const CommunityId = z.object({
@@ -9,15 +14,45 @@ export const CommunityId = z.object({
 	}),
 });
 
-export const createOpenApiSuccessRequest = <T>(schema: T) =>
-	cz.object({
-		success: cz.literal(true),
-		data: schema,
-	});
+export const docGetAllCommunities = createRoute({
+	method: "get",
+	path: "/",
+	security: [{ BearerAuth: [] }],
+	responses: {
+		200: {
+			content: {
+				"application/json": {
+					schema: createOpenApiSuccessRequest(cz.array(DBCommunityDetailSchema)),
+				},
+			},
+			description: "Success Response.",
+		},
+		404: {
+			description: "Not Found Error",
+			content: {
+				"application/json": {
+					schema: OpenApiErrorResponse,
+				},
+			},
+		},
+		401: {
+			description: "JWT ERROR.",
+			content: {
+				"application/json": {
+					schema: OpenApiErrorResponse,
+				},
+			},
+		},
 
-export const OpenApiErrorResponse = cz.object({
-	success: cz.literal(false),
-	message: cz.string(),
+		500: {
+			description: "Internal Server Error.",
+			content: {
+				"application/json": {
+					schema: OpenApiErrorResponse,
+				},
+			},
+		},
+	},
 });
 
 export const GetCommunityById = createRoute({
@@ -51,7 +86,7 @@ export const GetCommunityById = createRoute({
 				},
 			},
 		},
-		501: {
+		500: {
 			description: "Internal Server Error.",
 			content: {
 				"application/json": {

@@ -1,7 +1,7 @@
 import { swaggerUI } from "@hono/swagger-ui";
 import { OpenAPIHono } from "@hono/zod-openapi";
+import { community } from "@routes/community.route";
 import { cors } from "hono/cors";
-// import { community } from "./routes/community.route";
 import { sso } from "./routes/sso.route";
 
 const app = new OpenAPIHono();
@@ -37,6 +37,6 @@ app.use(
 );
 
 app.route("/api/v0/sso", sso);
-// app.route("/api/v0/community", community);
+app.route("/api/v0/community", community);
 
 export default app;

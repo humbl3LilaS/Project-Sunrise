@@ -30,6 +30,7 @@ export const communityDetail = pgTable("community_detail", {
 	bgUrl: text(),
 });
 
+export const DBCommunityDetailSchema = createSelectSchema(communityDetail);
 export type TCommnityDetail = typeof communityDetail.$inferSelect;
 
 export const communityUsers = pgTable(

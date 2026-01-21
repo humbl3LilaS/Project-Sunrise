@@ -1,24 +1,22 @@
-// import { OpenAPIHono } from "@hono/zod-openapi";
-// import { HTTPStatus } from "@src/constants";
-// import { GetCommunityById } from "@src/docs/community.docs";
-// import {
-// 	addUserToBanList,
-// 	createNewCommunity,
-// 	deleteCommunity,
-// 	getAllPublicCommunity,
-// 	getCommunityById,
-// 	joinCommunity,
-// 	leaveCommunity,
-// } from "../actions/community.actions";
-// import {
-// 	banUserPayloadSchema,
-// 	communityDetailInsertSchema,
-// } from "../validators/community.validators";
-// import { HttpStatus } from "@src/types/util";
-// import { validateJWT } from "@middlewares/index";
-// import { czValidator } from "@utils/zod-validator";
-//
-// export const community = new OpenAPIHono();
+import { getAllPublicCommunity } from "@actions/community.actions";
+import { OpenAPIHono } from "@hono/zod-openapi";
+import { validateJWT } from "@middlewares/index";
+import { docGetAllCommunities } from "@src/docs/community.docs";
+import { type AppEnv, HttpStatus } from "@src/types/util";
+
+export const community = new OpenAPIHono<AppEnv>();
+
+community.use("/", validateJWT);
+
+community.openapi(docGetAllCommunities, async (ctx) => {
+	const { userid } = ctx.var.jwtToken;
+	const res = await getAllPublicCommunity(userid);
+
+	if (res.status !== HttpStatus.OK) {
+		return ctx.json({ success: false, message: res.message }, res.status);
+	}
+	return ctx.json({ success: true, data: res.data }, res.status);
+});
 //
 // community.get("/", validateJWT, async (ctx) => {
 // 	const { userid } = ctx.var.jwtToken;

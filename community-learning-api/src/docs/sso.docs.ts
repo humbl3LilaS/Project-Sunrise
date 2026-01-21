@@ -1,15 +1,15 @@
 import { DBUserSchema } from "@db/schema";
 import { createRoute } from "@hono/zod-openapi";
+import {
+	createOpenApiSuccessRequest,
+	OpenApiErrorResponse,
+} from "@utils/open-api-helpers";
 import { cz } from "@utils/open-api-zod";
 import {
 	signInSchema,
 	signUpSchema,
 	userInfoUpdateSchema,
 } from "@valid/sso.validators";
-import {
-	createOpenApiSuccessRequest,
-	OpenApiErrorResponse,
-} from "./community.docs";
 
 export const docSsoRegister = createRoute({
 	method: "post",

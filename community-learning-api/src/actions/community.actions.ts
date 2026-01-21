@@ -1,80 +1,79 @@
-// import { db } from "@db/drizzle";
-// import {
-// 	communityBanList,
-// 	communityDetail,
-// 	communityUsers,
-// 	TCommnityDetail,
-// } from "@db/schema";
-// import { HttpStatus, TActionResponse } from "@src/types/util";
-// import { VTCommunityDetail } from "@valid/community.validators";
-// import { and, DrizzleQueryError, eq, isNull, ne, or } from "drizzle-orm";
-// import { union } from "drizzle-orm/pg-core";
-//
-// export const getAllPublicCommunity = async (
-// 	userid: string,
-// ): TActionResponse<TCommnityDetail[], 200> => {
-// 	try {
-// 		/*
-// 		 * This query select all communities which are "PUBLIC" and User has not been banned on.
-// 		 * */
-// 		const publicCommunities = db
-// 			.select({
-// 				id: communityDetail.id,
-// 				name: communityDetail.name,
-// 				description: communityDetail.description,
-// 				type: communityDetail.type,
-// 				bgUrl: communityDetail.bgUrl,
-// 			})
-// 			.from(communityDetail)
-// 			.leftJoin(communityUsers, eq(communityDetail.id, communityUsers.communityId))
-// 			.leftJoin(
-// 				communityBanList,
-// 				eq(communityDetail.id, communityBanList.communityId),
-// 			)
-// 			.where(
-// 				and(
-// 					eq(communityDetail.type, "PUBLIC"),
-// 					or(isNull(communityBanList.userId), ne(communityBanList.userId, userid)),
-// 				),
-// 			);
-//
-// 		/*
-// 		 * This query select every community in which user is apart of.
-// 		 * */
-// 		const userRelatedCommunities = db
-// 			.select({
-// 				id: communityDetail.id,
-// 				name: communityDetail.name,
-// 				description: communityDetail.description,
-// 				type: communityDetail.type,
-// 				bgUrl: communityDetail.bgUrl,
-// 			})
-// 			.from(communityDetail)
-// 			.leftJoin(communityUsers, eq(communityDetail.id, communityUsers.communityId))
-// 			.where(eq(communityUsers.userId, userid));
-//
-// 		/*
-// 		 * Union the result set of publicCommunites and userRelatedCummunities to eliminate duplicated values.
-// 		 * */
-// 		const result = await union(publicCommunities, userRelatedCommunities);
-//
-// 		return {
-// 			status: HttpStatus.OK,
-// 			data: result,
-// 		};
-// 	} catch (error) {
-// 		if (error instanceof Error) {
-// 			return {
-// 				status: HttpStatus.NotFound,
-// 				message: error.message,
-// 			};
-// 		}
-// 		return {
-// 			status: HttpStatus.InternalServerError,
-// 			message: "Internal Server Error",
-// 		};
-// 	}
-// };
+import { db } from "@db/drizzle";
+import {
+	communityBanList,
+	communityDetail,
+	communityUsers,
+	type TCommnityDetail,
+} from "@db/schema";
+import { HttpStatus, type TActionResponse } from "@src/types/util";
+import { and, eq, isNull, ne, or } from "drizzle-orm";
+import { union } from "drizzle-orm/pg-core";
+
+export const getAllPublicCommunity = async (
+	userid: string,
+): TActionResponse<TCommnityDetail[], 200 | 404 | 500> => {
+	try {
+		/*
+		 * This query select all communities which are "PUBLIC" and User has not been banned on.
+		 * */
+		const publicCommunities = db
+			.select({
+				id: communityDetail.id,
+				name: communityDetail.name,
+				description: communityDetail.description,
+				type: communityDetail.type,
+				bgUrl: communityDetail.bgUrl,
+			})
+			.from(communityDetail)
+			.leftJoin(communityUsers, eq(communityDetail.id, communityUsers.communityId))
+			.leftJoin(
+				communityBanList,
+				eq(communityDetail.id, communityBanList.communityId),
+			)
+			.where(
+				and(
+					eq(communityDetail.type, "PUBLIC"),
+					or(isNull(communityBanList.userId), ne(communityBanList.userId, userid)),
+				),
+			);
+
+		/*
+		 * This query select every community in which user is apart of.
+		 * */
+		const userRelatedCommunities = db
+			.select({
+				id: communityDetail.id,
+				name: communityDetail.name,
+				description: communityDetail.description,
+				type: communityDetail.type,
+				bgUrl: communityDetail.bgUrl,
+			})
+			.from(communityDetail)
+			.leftJoin(communityUsers, eq(communityDetail.id, communityUsers.communityId))
+			.where(eq(communityUsers.userId, userid));
+
+		/*
+		 * Union the result set of publicCommunites and userRelatedCummunities to eliminate duplicated values.
+		 * */
+		const result = await union(publicCommunities, userRelatedCommunities);
+
+		return {
+			status: HttpStatus.OK,
+			data: result,
+		};
+	} catch (error) {
+		if (error instanceof Error) {
+			return {
+				status: HttpStatus.NotFound,
+				message: error.message,
+			};
+		}
+		return {
+			status: HttpStatus.InternalServerError,
+			message: "Internal Server Error",
+		};
+	}
+};
 //
 // export const getCommunityById = async (
 // 	communityId: string,
