@@ -6,6 +6,10 @@ import { type AppEnv, HttpStatus } from "@src/types/util";
 
 export const community = new OpenAPIHono<AppEnv>();
 
+/*
+ * Route that need validation
+ * */
+
 community.use("/", validateJWT);
 
 community.openapi(docGetAllCommunities, async (ctx) => {
@@ -17,7 +21,7 @@ community.openapi(docGetAllCommunities, async (ctx) => {
 	}
 	return ctx.json({ success: true, data: res.data }, res.status);
 });
-//
+
 // community.get("/", validateJWT, async (ctx) => {
 // 	const { userid } = ctx.var.jwtToken;
 // 	const res = await getAllPublicCommunity(userid);

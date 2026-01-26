@@ -43,7 +43,6 @@ export const docGetAllCommunities = createRoute({
 				},
 			},
 		},
-
 		500: {
 			description: "Internal Server Error.",
 			content: {
@@ -55,7 +54,7 @@ export const docGetAllCommunities = createRoute({
 	},
 });
 
-export const GetCommunityById = createRoute({
+export const docGetCommunityById = createRoute({
 	method: "get",
 	path: "/{id}",
 	request: {

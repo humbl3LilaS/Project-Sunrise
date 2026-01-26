@@ -6,7 +6,7 @@ import {
 	type TCommnityDetail,
 } from "@db/schema";
 import { HttpStatus, type TActionResponse } from "@src/types/util";
-import { and, eq, isNull, ne, or } from "drizzle-orm";
+import { and, DrizzleQueryError, eq, isNull, ne, or } from "drizzle-orm";
 import { union } from "drizzle-orm/pg-core";
 
 export const getAllPublicCommunity = async (
@@ -75,45 +75,45 @@ export const getAllPublicCommunity = async (
 	}
 };
 //
-// export const getCommunityById = async (
-// 	communityId: string,
-// ): TActionResponse<TCommnityDetail, 200 | 400 | 404 | 501> => {
-// 	try {
-// 		console.log(communityId);
-// 		const [data] = await db
-// 			.select()
-// 			.from(communityDetail)
-// 			.where(eq(communityDetail.id, communityId));
-// 		if (!data) {
-// 			return {
-// 				status: HttpStatus.NotFound,
-// 				message: "Community not found",
-// 			};
-// 		}
-// 		return {
-// 			status: HttpStatus.OK,
-// 			data,
-// 		};
-// 	} catch (error) {
-// 		if (error instanceof DrizzleQueryError) {
-// 			return {
-// 				status: HttpStatus.NotFound,
-// 				message: "Community not found",
-// 			};
-// 		}
-//
-// 		if (error instanceof Error) {
-// 			return {
-// 				status: HttpStatus.BadRequest,
-// 				message: error.message,
-// 			};
-// 		}
-// 		return {
-// 			status: HttpStatus.InternalServerError,
-// 			message: "Internal Server Error",
-// 		};
-// 	}
-// };
+export const getCommunityById = async (
+	communityId: string,
+): TActionResponse<TCommnityDetail, 200 | 400 | 404 | 500> => {
+	try {
+		console.log(communityId);
+		const [data] = await db
+			.select()
+			.from(communityDetail)
+			.where(eq(communityDetail.id, communityId));
+		if (!data) {
+			return {
+				status: HttpStatus.NotFound,
+				message: "Community not found",
+			};
+		}
+		return {
+			status: HttpStatus.OK,
+			data,
+		};
+	} catch (error) {
+		if (error instanceof DrizzleQueryError) {
+			return {
+				status: HttpStatus.NotFound,
+				message: "Community not found",
+			};
+		}
+
+		if (error instanceof Error) {
+			return {
+				status: HttpStatus.BadRequest,
+				message: error.message,
+			};
+		}
+		return {
+			status: HttpStatus.InternalServerError,
+			message: "Internal Server Error",
+		};
+	}
+};
 //
 // export const createNewCommunity = async (
 // 	userid: string,

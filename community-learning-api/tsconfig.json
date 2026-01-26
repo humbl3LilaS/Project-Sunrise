@@ -27,7 +27,7 @@
 			"@actions/*": ["src/actions/*"],
 			"@valid/*": ["src/validators/*"],
 			"@const/*": ["src/constants/*"],
-			"@src/*": ["src/*"]
+			"@/*": ["src/*"]
 		}
 	},
 	"include": ["src", "types"], // Include source and shared types
