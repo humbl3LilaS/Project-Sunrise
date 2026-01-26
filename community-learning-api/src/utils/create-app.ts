@@ -1,9 +1,9 @@
-import { OpenAPIHono } from "@hono/zod-openapi";
-import { AppBinding } from "@/types/app.types";
-import { cPinoLogger } from "./pino-logger";
-import { HttpStatus } from "@/types/util";
+import type { AppBinding } from '@/types/app.types'
+import { OpenAPIHono } from '@hono/zod-openapi'
+import { HttpStatus } from '@/types/util'
+import { cPinoLogger } from './pino-logger'
 
-export const createRouter = () => {
+export function createRouter() {
   return new OpenAPIHono<AppBinding>({ defaultHook: (result, c) => {
     if (!result.success) {
       return c.json(
@@ -15,24 +15,24 @@ export const createRouter = () => {
           },
         },
         422,
-      );
+      )
     }
-  } });
-};
+  } })
+}
 
-const createApp = () => {
-  const app = createRouter();
-  app.use(cPinoLogger());
+function createApp() {
+  const app = createRouter()
+  app.use(cPinoLogger())
 
   app.notFound((ctx) => {
-    return ctx.json({ success: false, message: `Endpoint ${ctx.req.path} not supported` }, HttpStatus.NotFound);
-  });
+    return ctx.json({ success: false, message: `Endpoint ${ctx.req.path} not supported` }, HttpStatus.NotFound)
+  })
 
   app.onError((_err, ctx) => {
-    return ctx.json({ success: false, message: "Global error handler." });
-  });
+    return ctx.json({ success: false, message: 'Global error handler.' })
+  })
 
-  return app;
-};
+  return app
+}
 
-export default createApp;
+export default createApp

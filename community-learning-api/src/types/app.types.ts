@@ -1,10 +1,12 @@
-import type { OpenAPIHono } from "@hono/zod-openapi";
-import type { PinoLogger } from "hono-pino";
+import type { OpenAPIHono } from '@hono/zod-openapi'
+import type { VTJwtPayload } from '@valid/sso.validators'
+import type { PinoLogger } from 'hono-pino'
 
 export interface AppBinding {
   Variables: {
-    logger: PinoLogger;
-  };
+    jwtToken: VTJwtPayload
+    logger: PinoLogger
+  }
 }
 
-export type AppOpenApi = OpenAPIHono<AppBinding>;
+export type AppOpenApi = OpenAPIHono<AppBinding>
