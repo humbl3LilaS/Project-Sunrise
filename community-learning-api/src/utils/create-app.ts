@@ -1,10 +1,10 @@
-import type { AppBinding } from "@/types/app.types";
+import type { AppBindings } from "@/types/app.types";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { HttpStatus } from "@/types/util.types";
 import { cPinoLogger } from "./pino-logger";
 
 export const createRouter = () => {
-  return new OpenAPIHono<AppBinding>({ defaultHook: (result, c) => {
+  return new OpenAPIHono<AppBindings>({ strict: false, defaultHook: (result, c) => {
     if (!result.success) {
       return c.json(
         {

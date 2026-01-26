@@ -1,3 +1,4 @@
+import ssoRouter from "@routes/sso/sso.index";
 import createApp from "@utils/create-app";
 import { configureOpenApi } from "@utils/open-api";
 
@@ -5,8 +6,12 @@ const app = createApp();
 
 configureOpenApi(app);
 
-app.get("/", (c) => {
-  return c.text("Hello Hono!");
+const routes = [ssoRouter] as const;
+
+routes.forEach((route) => {
+  app.route("/", route);
 });
+
+export type AppType = typeof routes[number];
 
 export default app;
