@@ -1,32 +1,32 @@
-import type { AppEnv } from '@/types/util'
-import { decryptJWTToken } from '@utils/jwt'
-import { createMiddleware } from 'hono/factory'
+import type { AppBinding } from "@/types/app.types";
+import { decryptJWTToken } from "@utils/jwt";
+import { createMiddleware } from "hono/factory";
 
-export const validateJWT = createMiddleware<AppEnv>(async (ctx, next) => {
-  const authorizationHeader = ctx.req.header('Authorization')
+export const validateJWT = createMiddleware<AppBinding>(async (ctx, next) => {
+  const authorizationHeader = ctx.req.header("Authorization");
   if (!authorizationHeader) {
     return ctx.json(
       {
         success: false,
-        message: 'Unauthorized Request',
+        message: "Unauthorized Request",
       },
       401,
-    )
+    );
   }
 
-  const [_, bearerToken] = authorizationHeader.split(' ')
+  const [, bearerToken] = authorizationHeader.split(" ");
 
   if (!bearerToken) {
     return ctx.json(
       {
         success: false,
-        message: 'Unauthorized Request',
+        message: "Unauthorized Request",
       },
       401,
-    )
+    );
   }
 
-  const decryptedToken = await decryptJWTToken(bearerToken)
+  const decryptedToken = await decryptJWTToken(bearerToken);
 
   if (!decryptedToken.success) {
     return ctx.json(
@@ -35,8 +35,8 @@ export const validateJWT = createMiddleware<AppEnv>(async (ctx, next) => {
         message: `${decryptedToken.message}`,
       },
       401,
-    )
+    );
   }
-  ctx.set('jwtToken', decryptedToken.payload)
-  await next()
-})
+  ctx.set("jwtToken", decryptedToken.payload);
+  await next();
+});

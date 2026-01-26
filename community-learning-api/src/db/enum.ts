@@ -1,22 +1,22 @@
-import { pgEnum } from 'drizzle-orm/pg-core'
+import { pgEnum } from "drizzle-orm/pg-core";
 
-export const UserRole = pgEnum('user_role', ['ADMIN', 'STUDENT', 'INSTRUCTOR'])
+export const UserRole = pgEnum("user_role", ["ADMIN", "STUDENT", "INSTRUCTOR"]);
 
-export type TUserRole = (typeof UserRole.enumValues)[number]
+export type TUserRole = (typeof UserRole.enumValues)[number];
 
-export const CommunityType = pgEnum('community_type', [
-  'PRIVATE',
-  'PUBLIC',
-  'ARCHIVE',
-])
+export const CommunityType = pgEnum("community_type", [
+  "PRIVATE",
+  "PUBLIC",
+  "ARCHIVE",
+]);
 
-export type TCommunityType = (typeof CommunityType.enumValues)[number]
+export type TCommunityType = (typeof CommunityType.enumValues)[number];
 
-export const CommunityUserRole = pgEnum('community_user_role', [
-  'OWNER',
-  'ADMIN',
-  'MODERATOR',
-  'MEMBER',
-])
+export const CommunityUserRole = pgEnum("community_user_role", [
+  "OWNER",
+  "ADMIN",
+  "MODERATOR",
+  "MEMBER",
+]);
 
-export type TCommunityUserRole = (typeof CommunityUserRole.enumValues)[number]
+export type TCommunityUserRole = (typeof CommunityUserRole.enumValues)[number];
