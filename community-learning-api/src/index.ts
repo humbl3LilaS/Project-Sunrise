@@ -9,7 +9,7 @@ configureOpenApi(app);
 const routes = [ssoRouter] as const;
 
 routes.forEach((route) => {
-  app.route("/", route);
+  app.route("/api/v0", route);
 });
 
 export type AppType = typeof routes[number];

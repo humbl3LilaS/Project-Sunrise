@@ -1,7 +1,13 @@
 import type { SignInRoute } from "./sso.routes";
 import type { AppRouteHandler } from "@/types/app.types";
 import { HttpStatus } from "@/types/util.types";
+import * as actions from "./sso.actions";
 
 export const signIn: AppRouteHandler<SignInRoute> = async (ctx) => {
-  return ctx.json({ success: true, message: "Success" }, HttpStatus.OK);
+  const payload = ctx.req.valid("json");
+  const res = await actions.signIn(payload);
+  if (res.status !== HttpStatus.OK) {
+    return ctx.json({ success: false, message: res.message }, res.status);
+  }
+  return ctx.json({ success: true, data: { token: res.data } }, res.status);
 };

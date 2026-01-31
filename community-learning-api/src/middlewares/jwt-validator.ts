@@ -1,8 +1,8 @@
-import type { AppBinding } from "@/types/app.types";
+import type { AppBindings } from "@/types/app.types";
 import { decryptJWTToken } from "@utils/jwt";
 import { createMiddleware } from "hono/factory";
 
-export const validateJWT = createMiddleware<AppBinding>(async (ctx, next) => {
+export const validateJWT = createMiddleware<AppBindings>(async (ctx, next) => {
   const authorizationHeader = ctx.req.header("Authorization");
   if (!authorizationHeader) {
     return ctx.json(

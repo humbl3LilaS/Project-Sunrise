@@ -1,3 +1,4 @@
+import type { ZodObject } from "zod";
 import type { AppOpenApi } from "@/types/app.types";
 import { swaggerUI } from "@hono/swagger-ui";
 import { z } from "@hono/zod-openapi";
@@ -17,7 +18,7 @@ export const configureOpenApi = (app: AppOpenApi) => {
   app.get("/scalar", Scalar({ url: "/doc" }));
 };
 
-export const createSuccessResponse = <T>(schema: T) => {
+export const createSuccessResponse = <T extends ZodObject>(schema: T) => {
   return z.object({
     success: z.literal(true),
     data: schema,

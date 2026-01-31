@@ -1,7 +1,20 @@
-import type { VTJwtPayload } from "../validators/sso.validators";
+import type { TUserRole } from "@db/enum";
+import { UserRole } from "@db/enum";
 import * as jose from "jose";
-import { jwtPayload } from "../validators/sso.validators";
+import z from "zod";
 import env from "./env";
+
+export const jwtPayload = z.object({
+  email: z.email({ message: "Email is required" }),
+  userid: z.string().min(1, { message: "Userid is requried" }),
+  role: z
+    .string()
+    .refine(value => UserRole.enumValues.includes(value as TUserRole)),
+  iat: z.number().positive(),
+  exp: z.number().positive(),
+});
+
+export type VTJwtPayload = z.infer<typeof jwtPayload>;
 
 export const generateJWTToken = async (payload: Record<string, string | number>) => {
   const secret = Buffer.from(env.JWT_SECRET, "base64");

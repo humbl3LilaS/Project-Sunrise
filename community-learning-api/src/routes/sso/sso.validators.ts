@@ -1,6 +1,4 @@
-import type { TUserRole } from "../db/enum";
 import z from "zod";
-import { UserRole } from "../db/enum";
 
 const password = z
   .string()
@@ -60,15 +58,3 @@ export const userInfoUpdateSchema = z
   });
 
 export type VTUserInfoUpdate = z.infer<typeof userInfoUpdateSchema>;
-
-export const jwtPayload = z.object({
-  email: z.email({ message: "Email is required" }),
-  userid: z.string().min(1, { message: "Userid is requried" }),
-  role: z
-    .string()
-    .refine(value => UserRole.enumValues.includes(value as TUserRole)),
-  iat: z.number().positive(),
-  exp: z.number().positive(),
-});
-
-export type VTJwtPayload = z.infer<typeof jwtPayload>;

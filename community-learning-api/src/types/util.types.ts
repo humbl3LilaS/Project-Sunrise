@@ -1,5 +1,3 @@
-import type { VTJwtPayload } from "@valid/sso.validators";
-
 export const HttpStatus = {
   OK: 200,
   Created: 201,
@@ -24,9 +22,3 @@ export type TActionResponse<
   T,
   S extends keyof ActionStatusMap<T> = keyof ActionStatusMap<T>,
 > = Promise<{ [K in S]: { status: K } & ActionStatusMap<T>[K] }[S]>;
-
-export interface AppEnv {
-  Variables: {
-    jwtToken: VTJwtPayload;
-  };
-}
