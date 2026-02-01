@@ -24,5 +24,6 @@ export default antfu({
       caughtErrorsIgnorePattern: "^_",
     }],
     "node/prefer-global/buffer": ["off"],
+    "node/prefer-global/process": ["off"],
   },
 });

@@ -10,7 +10,9 @@
     "db:generate": "bunx drizzle-kit generate",
     "db:migrate": "bunx drizzle-kit migrate",
     "db:studio": "bunx drizzle-kit studio",
-    "test": "bunx vitest"
+    "db:seed": "cross-env ENV=test bun run ./src/db/seed.ts",
+    "db:test_migrate": "cross-env ENV=test bun run db:migrate",
+    "test": "bun run db:test_migrate &&  bun run db:seed && cross-env ENV=test bunx vitest"
   },
   "dependencies": {
     "@hono/swagger-ui": "^0.5.3",
@@ -35,6 +37,7 @@
     "@types/bcrypt": "^6.0.0",
     "@types/bun": "latest",
     "@types/pg": "^8.16.0",
+    "cross-env": "^10.1.0",
     "drizzle-kit": "^0.31.8",
     "eslint": "^9.39.2",
     "eslint-plugin-format": "^1.3.1",
