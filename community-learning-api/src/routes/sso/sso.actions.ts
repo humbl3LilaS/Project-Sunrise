@@ -3,6 +3,7 @@ import type { TActionResponse } from "@/types/util.types";
 import { db } from "@db/drizzle";
 import { users } from "@db/schema";
 import { generateJWTToken } from "@utils/jwt";
+import { hashPassword, verifyPassword } from "@utils/password";
 import { and, DrizzleQueryError, eq } from "drizzle-orm";
 import { HttpStatus } from "@/types/util.types";
 
@@ -20,7 +21,7 @@ export const signIn = async (payload: VTSignInSchema): TActionResponse<string, 2
       };
     }
 
-    const isPasswordMatch = await Bun.password.verify(payload.password, user.password);
+    const isPasswordMatch = await verifyPassword(payload.password, user.password);
     if (!isPasswordMatch) {
       return {
         status: 400,
@@ -35,6 +36,7 @@ export const signIn = async (payload: VTSignInSchema): TActionResponse<string, 2
     };
   }
   catch (_error) {
+    console.error(_error);
     return {
       status: 500,
       message: "Failed To authenticated.",
@@ -44,7 +46,7 @@ export const signIn = async (payload: VTSignInSchema): TActionResponse<string, 2
 
 export const signUp = async (payload: VTSignUpSchema): TActionResponse<string, 201 | 400 | 500> => {
   try {
-    const hashedPassword = await Bun.password.hash(payload.password);
+    const hashedPassword = await hashPassword(payload.password);
 
     const [data] = await db.insert(users).values({
       email: payload.email,

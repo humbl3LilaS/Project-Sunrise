@@ -10,6 +10,7 @@ const EnvSchema = z.object({
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]).default("info"),
   DATABASE_URL: z.string(),
   JWT_SECRET: z.string(),
+  SALT_ROUND: z.coerce.number().positive(),
 });
 
 type TEnv = z.infer<typeof EnvSchema>;
