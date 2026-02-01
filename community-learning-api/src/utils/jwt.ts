@@ -16,7 +16,7 @@ export const jwtPayload = z.object({
 
 export type VTJwtPayload = z.infer<typeof jwtPayload>;
 
-export const generateJWTToken = async (payload: Record<string, string | number>) => {
+export const generateJWTToken = async (payload: Omit<VTJwtPayload, "iat" | "exp">) => {
   const secret = Buffer.from(env.JWT_SECRET, "base64");
 
   return await new jose.EncryptJWT(payload)

@@ -1,5 +1,7 @@
 import { createRoute, z } from "@hono/zod-openapi";
-import { createSuccessResponse, failedResponse } from "@utils/open-api";
+import { createSuccessResponse, createValidationErrorSchema, failedResponse, jsonContent } from "@utils/open-api";
+import { HttpStatus } from "@/types/util.types";
+import { signInSchema, signUpSchema } from "./sso.validators";
 
 const tags = ["SSO"];
 
@@ -8,45 +10,31 @@ export const signIn = createRoute({
   method: "post",
   tags,
   request: {
-    body: {
-      content: {
-        "application/json": {
-          schema: z.object({
-            email: z.string(),
-            password: z.string(),
-          }),
-        },
-      },
-    },
+    body: jsonContent(signInSchema, "Payload to perform Sign In."),
   },
   responses: {
-    200: {
-      content: {
-        "application/json": {
-          schema: createSuccessResponse(z.object({ token: z.string() })),
-        },
-
-      },
-      description: "Success Response",
-    },
-    401: {
-      content: {
-        "application/json": {
-          schema: failedResponse,
-        },
-      },
-      description: "Failed Response Due to Invalid Email or password",
-    },
-    500: {
-      content: {
-        "application/json": {
-          schema: failedResponse,
-        },
-      },
-      description: "Unhandled Response From Server",
-    },
-
+    [HttpStatus.OK]: jsonContent(createSuccessResponse(z.object({ token: z.string() })), "Success Response"),
+    [HttpStatus.UnprocessableEntity]: jsonContent(createValidationErrorSchema(signInSchema), "JSON Body Payload Validation Error(s)."),
+    [HttpStatus.BadRequest]: jsonContent(failedResponse, "Failed Response Due to Invalid Email or Password."),
+    [HttpStatus.InternalServerError]: jsonContent(failedResponse, "Unhandled Response From Server"),
   },
 });
 
 export type SignInRoute = typeof signIn;
+
+export const signUp = createRoute({
+  path: "/sso/sign-up",
+  method: "post",
+  tags,
+  request: {
+    body: jsonContent(signUpSchema, "Payload to Sign-in as new user."),
+  },
+  responses: {
+    [HttpStatus.Created]: jsonContent(createSuccessResponse(z.object({ token: z.string() })), "Success Response."),
+    [HttpStatus.UnprocessableEntity]: jsonContent(createValidationErrorSchema(signUpSchema), "JSON Body Payload Validation Error(s)."),
+    [HttpStatus.BadRequest]: jsonContent(failedResponse, "Failed Response Due to Invalid Email or password."),
+    [HttpStatus.InternalServerError]: jsonContent(failedResponse, "Unhandled Response From Server"),
+  },
+});
+
+export type SignUpRoute = typeof signUp;

@@ -1,4 +1,5 @@
-import type { AppBindings } from "@/types/app.types";
+import type { Schema } from "hono";
+import type { AppBindings, AppOpenAPI } from "@/types/app.types";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { HttpStatus } from "@/types/util.types";
 import { cPinoLogger } from "./pino-logger";
@@ -36,3 +37,7 @@ const createApp = () => {
 };
 
 export default createApp;
+
+export const createTestApp = <S extends Schema> (router: AppOpenAPI<S>) => {
+  return createApp().route("/", router);
+};

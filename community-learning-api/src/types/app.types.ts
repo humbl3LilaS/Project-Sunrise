@@ -1,5 +1,5 @@
 import type { OpenAPIHono, RouteConfig, RouteHandler } from "@hono/zod-openapi";
-import type { VTJwtPayload } from "@valid/sso.validators";
+import type { VTJwtPayload } from "@utils/jwt";
 import type { Schema } from "hono";
 import type { PinoLogger } from "hono-pino";
 
