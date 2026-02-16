@@ -1,0 +1,1 @@
+ALTER TABLE "community_detail" ALTER COLUMN "type" SET NOT NULL;

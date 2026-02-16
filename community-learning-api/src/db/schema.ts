@@ -26,7 +26,7 @@ export const communityDetail = pgTable("community_detail", {
   id: uuid().defaultRandom().primaryKey(),
   name: varchar({ length: 255 }).notNull().unique(),
   description: text().notNull(),
-  type: CommunityType("type").default("PUBLIC"),
+  type: CommunityType("type").default("PUBLIC").notNull(),
   bgUrl: text(),
 });
 

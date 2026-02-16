@@ -1,6 +1,7 @@
 import type { AppBindings } from "@/types/app.types";
 import { decryptJWTToken } from "@utils/jwt";
 import { createMiddleware } from "hono/factory";
+import { HttpStatus } from "@/types/util.types";
 
 export const validateJWT = createMiddleware<AppBindings>(async (ctx, next) => {
   const authorizationHeader = ctx.req.header("Authorization");
@@ -10,7 +11,7 @@ export const validateJWT = createMiddleware<AppBindings>(async (ctx, next) => {
         success: false,
         message: "Unauthorized Request",
       },
-      401,
+      HttpStatus.Unauthorized,
     );
   }
 
@@ -22,7 +23,7 @@ export const validateJWT = createMiddleware<AppBindings>(async (ctx, next) => {
         success: false,
         message: "Unauthorized Request",
       },
-      401,
+      HttpStatus.Unauthorized,
     );
   }
 
@@ -34,7 +35,7 @@ export const validateJWT = createMiddleware<AppBindings>(async (ctx, next) => {
         success: false,
         message: `${decryptedToken.message}`,
       },
-      401,
+      HttpStatus.Unauthorized,
     );
   }
   ctx.set("jwtToken", decryptedToken.payload);

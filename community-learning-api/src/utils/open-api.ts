@@ -19,7 +19,7 @@ export const configureOpenApi = (app: AppOpenApi) => {
   app.get("/scalar", Scalar({ url: "/doc" }));
 };
 
-export const createSuccessResponse = <T extends ZodObject>(schema: T) => {
+export const createSuccessResponse = <T extends ZodObject | ZodSchema>(schema: T) => {
   return z.object({
     success: z.literal(true),
     data: schema,
